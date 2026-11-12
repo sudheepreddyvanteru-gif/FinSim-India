@@ -33,10 +33,11 @@
     <div class="auth-side">
       <div class="auth-card">
         <div class="eyebrow" style="margin-bottom:10px">WELCOME TO FINSIM INDIA</div>
-        <h2 id="authTitle">Continue with Google</h2>
-        <p class="auth-lead" id="authLead">Use your Google account to access your personal investing workspace.</p>
+        <h2 id="authTitle">Continue with Google or GitHub</h2>
+        <p class="auth-lead" id="authLead">Use your Google or GitHub account to access your personal investing workspace.</p>
         <div class="auth-divider">CONTINUE WITH</div>
         <button class="social-btn" type="button" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" transform="translate(3 4) scale(.88)"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.43 38.06 46.98 31.88 46.98 24.55z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.2a24 24 0 0 0 0 21.58l7.98-6.2z" transform="translate(2 1) scale(.92)"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.9 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.2C6.51 43.62 14.62 48 24 48z" transform="translate(3 0) scale(.88)"/></svg>Continue with Google</button>
+        <button class="social-btn" type="button" id="githubBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.53v-2.04c-3.1.68-3.75-1.32-3.75-1.32-.5-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1 .1.76 2.13 3.2 1.51.1-.73.4-1.23.72-1.51-2.48-.28-5.09-1.24-5.09-5.53 0-1.22.44-2.22 1.16-3-.12-.28-.5-1.42.11-2.96 0 0 .95-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.1-1.45 3.04-1.15 3.04-1.15.61 1.54.23 2.68.12 2.96.72.78 1.15 1.78 1.15 3 0 4.3-2.62 5.24-5.11 5.52.4.35.76 1.03.76 2.08V22c0 .29.2.64.77.53A11.1 11.1 0 0 0 12 .9Z"/></svg>Continue with GitHub</button>
         <p class="auth-message" id="authMessage" role="status" aria-live="polite">Connecting to Firebase Authentication…</p>
         <button class="text-btn hidden" id="retrySdkBtn" type="button" style="margin-top:8px">Retry Firebase connection</button>
         <p class="auth-legal">By continuing, you agree to use FinSim India as a virtual investing education tool. No real-money orders are placed.</p>
@@ -102,7 +103,7 @@
         <div class="page-intro"><div><h2>Account settings</h2><p>Manage your signed-in account and app status.</p></div></div>
         <div class="settings-grid">
           <div class="panel"><div class="panel-head"><h3>Account</h3><span class="tag">FIREBASE AUTH</span></div><div class="setting-row"><div><strong>Signed-in email</strong><small id="settingsEmail">—</small></div></div><div class="setting-row"><div><strong>Account ID</strong><small id="settingsUid">—</small></div></div><div class="setting-row"><div><strong>Authentication</strong><small id="settingsProvider">—</small></div></div><div class="setting-row"><div><strong>Sign out</strong><small>End your current session on this browser.</small></div><button class="btn btn-danger" id="settingsSignOut" type="button">Sign out</button></div></div>
-          <div class="panel"><div class="panel-head"><h3>FinSim India status</h3><span class="tag">SETUP</span></div><div class="setting-row"><div><strong>Authentication</strong><small>Google sign-in is used for account access.</small></div><span class="tag">CONNECTED</span></div><div class="setting-row"><div><strong>Market data</strong><small>Unofficial Yahoo Finance chart data via CORS relay; may be delayed.</small></div><span class="tag">UNOFFICIAL FEED</span></div><div class="setting-row"><div><strong>Data storage</strong><small>Account preferences and watchlist are stored locally in this browser; cloud sync is not configured.</small></div><span class="tag">LOCAL</span></div></div>
+          <div class="panel"><div class="panel-head"><h3>FinSim India status</h3><span class="tag">SETUP</span></div><div class="setting-row"><div><strong>Authentication</strong><small>Google and GitHub sign-in are available for account access.</small></div><span class="tag">CONNECTED</span></div><div class="setting-row"><div><strong>Market data</strong><small>Unofficial Yahoo Finance chart data via CORS relay; may be delayed.</small></div><span class="tag">UNOFFICIAL FEED</span></div><div class="setting-row"><div><strong>Data storage</strong><small>Account preferences and watchlist are stored locally in this browser; cloud sync is not configured.</small></div><span class="tag">LOCAL</span></div></div>
         </div>
       </section>
     </main>
@@ -191,9 +192,12 @@
     }
     function readableAuthError(error) {
       const map = {
-        'auth/unauthorized-domain':'This website domain is not authorized. Add localhost in Firebase Authentication settings.',
-        'auth/popup-blocked':'Your browser blocked the Google sign-in popup. Allow popups and try again.',
-        'auth/popup-closed-by-user':'The Google sign-in window was closed before completion.',
+        'auth/unauthorized-domain':'This website domain is not authorized. Add the current hostname in Firebase Authentication → Settings → Authorized domains.',
+        'auth/operation-not-allowed':'This sign-in provider is not enabled in Firebase Authentication. Enable Google or GitHub in the Firebase console.',
+        'auth/popup-blocked':'Your browser blocked the sign-in popup. Allow popups and try again.',
+        'auth/popup-closed-by-user':'The sign-in window was closed before completion.',
+        'auth/cancelled-popup-request':'Another sign-in popup is already open. Close it and try again.',
+        'auth/account-exists-with-different-credential':'An account already exists with this email using another sign-in method. Sign in with that method first.',
         'auth/network-request-failed':'Network error. Check your internet connection and try again.',
         'auth/invalid-api-key':'Firebase API key was rejected. Check the Web App configuration.',
         'auth/user-disabled':'This account has been disabled in Firebase Authentication.',
@@ -352,6 +356,22 @@
       } catch (error) { setAuthMessage(readableAuthError(error), 'error'); }
       finally { $('googleBtn').disabled = false; }
     });
+
+    $('githubBtn').addEventListener('click', async () => {
+      if (!auth) return setAuthMessage('Firebase is not connected yet.', 'error');
+      $('githubBtn').disabled = true;
+      setAuthMessage('Opening GitHub sign-in…');
+      try {
+        const provider = new firebase.auth.GithubAuthProvider();
+        provider.addScope('read:user');
+        provider.addScope('user:email');
+        await auth.signInWithPopup(provider);
+      } catch (error) {
+        setAuthMessage(readableAuthError(error), 'error');
+      } finally {
+        $('githubBtn').disabled = false;
+      }
+    });
     async function signOut() {
       if (!auth) return;
       try { await auth.signOut(); showToast('Signed out successfully.'); }
@@ -381,6 +401,7 @@
     if (window.location.protocol === 'file:') {
       setAuthMessage('Open FinSim using Start_FinSim_India.bat, then visit http://localhost:5500/FinSim_India.html to use Google sign-in.', 'error');
       $('googleBtn').disabled = true;
+      $('githubBtn').disabled = true;
       return;
     }
 
@@ -439,6 +460,7 @@
     async function initializeFirebase() {
       $('retrySdkBtn').classList.add('hidden');
       $('googleBtn').disabled = true;
+      $('githubBtn').disabled = true;
       setAuthMessage('Connecting to Firebase Authentication. Please keep this page open…');
       showAuth();
       try {
@@ -449,10 +471,13 @@
         auth.onAuthStateChanged(user => {
           if (user) showApp(user); else showAuth();
         }, error => setAuthMessage(readableAuthError(error), 'error'));
-          $('googleBtn').disabled = false;
-        setAuthMessage('Firebase is connected (' + source + '). Continue with Google to sign in.', 'success');
+        $('googleBtn').disabled = false;
+        $('githubBtn').disabled = false;
+        setAuthMessage('Firebase is connected (' + source + '). Continue with Google or GitHub to sign in.', 'success');
       } catch (error) {
         auth = null;
+        $('googleBtn').disabled = true;
+        $('githubBtn').disabled = true;
         showAuth();
         setAuthMessage(error.message || 'Firebase initialization failed. Check the SDK connection.', 'error');
         $('retrySdkBtn').classList.remove('hidden');
