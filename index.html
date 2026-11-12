@@ -186,6 +186,9 @@
     const quoteCache = new Map();
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
+    // Holds a GitHub credential temporarily while the user signs in with the existing Google account.
+    let pendingGithubCredential = null;
+    let pendingGithubEmail = null;
 
     function setAuthMessage(message, type='') {
       const el = $('authMessage'); el.textContent = message || ''; el.className = 'auth-message' + (type ? ' ' + type : '');
@@ -348,13 +351,38 @@
 
     $('googleBtn').addEventListener('click', async () => {
       if (!auth) return setAuthMessage('Firebase is not connected yet.', 'error');
-      $('googleBtn').disabled = true; setAuthMessage('Opening Google sign-in…');
+      $('googleBtn').disabled = true; setAuthMessage(pendingGithubCredential ? 'Sign in with the Google account you already use for FinSim. GitHub will then be linked automatically…' : 'Opening Google sign-in…');
       try {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({prompt:'select_account'});
-        await auth.signInWithPopup(provider);
-      } catch (error) { setAuthMessage(readableAuthError(error), 'error'); }
-      finally { $('googleBtn').disabled = false; }
+        const result = await auth.signInWithPopup(provider);
+
+        // If GitHub reported an existing Google account, link that pending GitHub credential
+        // to the Google-authenticated Firebase user instead of creating a second account.
+        if (pendingGithubCredential) {
+          if (pendingGithubEmail && result.user.email &&
+              pendingGithubEmail.toLowerCase() !== result.user.email.toLowerCase()) {
+            pendingGithubCredential = null;
+            pendingGithubEmail = null;
+            setAuthMessage('Please choose the same Google email address that matches your GitHub account, then try GitHub linking again.', 'error');
+            return;
+          }
+          await result.user.linkWithCredential(pendingGithubCredential);
+          pendingGithubCredential = null;
+          pendingGithubEmail = null;
+          await result.user.reload();
+          setAuthMessage('GitHub is now linked to your existing FinSim account. You can use Google or GitHub next time.', 'success');
+          showToast('GitHub linked successfully!');
+        }
+      } catch (error) {
+        if (error.code === 'auth/credential-already-in-use') {
+          pendingGithubCredential = null;
+          pendingGithubEmail = null;
+          setAuthMessage('That GitHub account is already linked to another FinSim account. Contact support before changing accounts.', 'error');
+        } else {
+          setAuthMessage(readableAuthError(error), 'error');
+        }
+      } finally { $('googleBtn').disabled = false; }
     });
 
     $('githubBtn').addEventListener('click', async () => {
@@ -367,7 +395,13 @@
         provider.addScope('user:email');
         await auth.signInWithPopup(provider);
       } catch (error) {
-        setAuthMessage(readableAuthError(error), 'error');
+        if (error.code === 'auth/account-exists-with-different-credential' && error.credential) {
+          pendingGithubCredential = error.credential;
+          pendingGithubEmail = error.email || null;
+          setAuthMessage('This email already has a FinSim account. Click Continue with Google and choose the same email. We will link GitHub automatically.', 'error');
+        } else {
+          setAuthMessage(readableAuthError(error), 'error');
+        }
       } finally {
         $('githubBtn').disabled = false;
       }
