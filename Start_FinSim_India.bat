@@ -14,10 +14,10 @@ if not defined PYTHON_CMD (
   exit /b 1
 )
 
-echo Starting FinSim India on http://127.0.0.1:5500/
+echo Starting FinSim India on http://localhost:5500/
 start "FinSim India local server" cmd /k "cd /d ""%~dp0"" && %PYTHON_CMD% -m http.server 5500 --bind 127.0.0.1"
 timeout /t 2 /nobreak >nul
-start "" "http://127.0.0.1:5500/"
+start "" "http://localhost:5500/"
 
 echo.
 echo Keep the FinSim India server window open while using the app.
