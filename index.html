@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="/FinSim-India/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="/FinSim-India/icons/icon-192.png">
   <meta name="theme-color" content="#0a1020">
   <title>FinSim India</title>
   <style>
@@ -528,6 +530,13 @@
     initializeFirebase();
     // Refresh quotes periodically while the tab remains open; Yahoo's chart feed is unofficial and can be delayed.
     setInterval(() => { if (currentUser && !document.hidden) refreshQuotes({silent:true}); }, 5 * 60 * 1000);
+    // Register the PWA service worker when FinSim is served from GitHub Pages or another HTTPS host.
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/FinSim-India/service-worker.js', {scope:'/FinSim-India/'})
+          .catch(error => console.warn('FinSim service worker registration failed:', error));
+      });
+    }
   })();
   </script>
 </body>
