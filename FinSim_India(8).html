@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>FinSim India | Portfolio & Market Tracker</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1020;--sidebar:#0e1729;--panel:#121e32;--panel2:#17253c;--line:#263650;--text:#edf3ff;--muted:#93a4bd;--purple:#8b80ff;--purple2:#6f63ed;--green:#42d6a0;--red:#ff8295;--amber:#e9bd77;--shadow:0 20px 60px #0005}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{font-size:14px}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--purple);outline-offset:2px}.hidden{display:none!important}.muted{color:var(--muted)}.positive{color:var(--green)!important}.negative{color:var(--red)!important}.eyebrow{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:#aaa3ff;font-weight:850}.app{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}.sidebar{height:100vh;position:sticky;top:0;background:var(--sidebar);border-right:1px solid var(--line);padding:25px 16px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:11px;padding:0 8px;margin-bottom:38px;font-size:19px;font-weight:900;letter-spacing:-.6px}.brand-mark{width:39px;height:39px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(140deg,#9b91ff,#5f55dc);box-shadow:0 8px 24px #7067ef44;color:white}.brand small{display:block;margin-top:3px;color:var(--muted);font-size:9px;letter-spacing:1.7px}.nav-label{padding:0 12px;margin-bottom:10px;color:#72829d;font-size:9px;font-weight:850;letter-spacing:1.5px}.nav{display:grid;gap:6px}.nav button{width:100%;border:0;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;text-align:left;background:transparent;color:#9ba9bf;font-size:12px;font-weight:750}.nav button:hover,.nav button.active{background:#252d4c;color:#c1baff}.nav-icon{width:20px;text-align:center;font-size:16px}.sidebar-foot{margin-top:auto;padding:14px;border:1px solid var(--line);border-radius:13px;background:#111d30}.sidebar-foot strong{font-size:11px}.sidebar-foot p{font-size:10px;line-height:1.6;color:var(--muted);margin:7px 0 0}.main{min-width:0;padding:27px clamp(17px,3vw,42px) 45px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:28px}.topbar h1{font-size:25px;letter-spacing:-.9px;margin:4px 0 0}.top-actions{display:flex;gap:9px;align-items:center}.mobile-menu{display:none}.btn{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:#17243a;color:var(--text);font-size:11px;font-weight:800}.btn:hover{border-color:#65739a}.btn-primary{border:0;background:linear-gradient(100deg,#8a80ff,#665ce6);color:#fff}.btn-danger{background:#2b1a29;border-color:#704054;color:#ff9aaa}.btn-small{padding:7px 9px;font-size:10px}.page{display:none}.page.active{display:block}.page-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:18px}.page-intro h2{font-size:18px;letter-spacing:-.4px;margin:0 0 5px}.page-intro p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.tag{display:inline-flex;align-items:center;padding:5px 8px;border-radius:7px;background:#272b4d;color:#c4bcff;font-size:9px;font-weight:850;letter-spacing:.4px}.grid-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}.grid-two{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:15px}.stat,.panel{min-width:0;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#142037,#101a2c)}.stat{padding:16px}.stat-label{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px}.stat-icon{width:27px;height:27px;border-radius:9px;background:#292d50;color:#b7aeff;display:grid;place-items:center}.stat-value{font-size:22px;font-weight:900;letter-spacing:-.8px;margin:14px 0 5px}.stat-help{font-size:9px;color:#71839f}.panel{padding:18px;background:#111c2e}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.panel-head h3{font-size:12px;margin:0}.panel-head small{font-size:10px;color:var(--muted)}.market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:15px}.market-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(120deg,#1a2340,#111b2d)}.market-card strong{display:block;font-size:23px;letter-spacing:-.7px;margin-top:5px}.market-card small{font-size:9px;color:var(--muted)}.market-state{font-size:9px;color:var(--amber);text-align:right;line-height:1.6}.notice{padding:12px 14px;border:1px solid #55482e;border-radius:10px;background:#282217;color:#ddc79e;font-size:10px;line-height:1.65;margin-top:13px}.success-note{padding:11px 13px;border:1px solid #285944;border-radius:10px;background:#10281f;color:#a6e9c8;font-size:10px;line-height:1.6}.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:13px}.search,.field,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#0e192b;color:var(--text);font-size:11px}.toolbar .search{flex:1;min-width:190px}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:11px}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:12px 13px;text-align:left;border-bottom:1px solid var(--line);font-size:10px}th{background:#101a2b;color:#8495af;text-transform:uppercase;letter-spacing:.8px;font-size:9px}tbody tr:last-child td{border-bottom:0}td strong{font-size:10px}.exchange{display:inline-block;padding:4px 6px;margin:1px 2px;border-radius:5px;background:#292d50;color:#beb8ff;font-size:8px;font-weight:900}.exchange.bse{background:#183b46;color:#83d9e8}.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7}.empty strong{display:block;color:#d8e2f2;margin-bottom:5px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-field{display:grid;gap:6px}.form-field.full{grid-column:1/-1}.form-field label{font-size:10px;font-weight:750;color:#aebbd0}.form-hint{font-size:9px;color:var(--muted);line-height:1.5}.modal-backdrop{position:fixed;inset:0;z-index:30;background:#050914cc;display:grid;place-items:center;padding:16px;overflow:auto}.modal{width:min(100%,570px);border:1px solid #34435d;border-radius:18px;background:#111c2e;box-shadow:var(--shadow);padding:20px;margin:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modal-head h2{font-size:17px;margin:0}.close{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:#19263d;color:var(--text)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.pill{display:inline-block;padding:4px 7px;border-radius:6px;background:#26334b;color:#c0cce0;font-size:8px;font-weight:850}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setting-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.setting-row:last-child{border-bottom:0}.setting-row strong{display:block;font-size:11px}.setting-row small{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.6}.toast{position:fixed;right:18px;bottom:18px;z-index:60;padding:12px 15px;border:1px solid #455573;border-radius:10px;background:#18263e;box-shadow:var(--shadow);font-size:11px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;max-width:min(90vw,390px)}.toast.show{opacity:1;transform:translateY(0)}.field-error{color:#ff9baa;font-size:10px;margin-top:9px;min-height:14px}.footer-note{color:#75869f;font-size:9px;line-height:1.7;margin-top:16px}
+@media(max-width:1050px){.grid-four{grid-template-columns:repeat(2,1fr)}.grid-two{grid-template-columns:1fr}}@media(max-width:740px){.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:20;left:0;top:0;bottom:0;width:250px;transform:translateX(-105%);transition:transform .2s;box-shadow:12px 0 40px #0008}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-block}.main{padding:18px 13px 30px}.topbar h1{font-size:21px}.top-actions .btn:not(.mobile-menu){padding:9px}.market-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.page-intro{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}}@media(max-width:390px){.grid-four{gap:8px}.stat{padding:12px}.stat-value{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-mark">F</div><div>FinSim India<small>MARKET & PORTFOLIO</small></div></div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="active" data-page="overview"><span class="nav-icon">▦</span>Overview</button>
+      <button data-page="portfolio"><span class="nav-icon">◫</span>Portfolio</button>
+      <button data-page="transactions"><span class="nav-icon">⇄</span>Transactions</button>
+      <button data-page="markets"><span class="nav-icon">↗</span>Markets</button>
+      <button data-page="settings"><span class="nav-icon">⚙</span>Settings & backup</button>
+    </nav>
+    <div class="sidebar-foot"><strong>Real investment tracker</strong><p>Record investments you have actually completed through your broker. FinSim does not send orders to NSE or BSE.</p></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:10px"><button class="btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button><div><div class="eyebrow">Your investing workspace</div><h1 id="pageTitle">Overview</h1></div></div>
+      <div class="top-actions"><button class="btn" id="exportBtn">Export backup</button><button class="btn btn-primary" id="addBtn">＋ Record transaction</button></div>
+    </header>
+
+    <section class="page active" id="page-overview">
+      <div class="page-intro"><div><h2>Your portfolio at a glance</h2><p>Track your actual investments, current value and returns in one place.</p></div><span class="tag">PERSONAL PORTFOLIO</span></div>
+      <div class="grid-four">
+        <div class="stat"><div class="stat-label">Current invested cost <span class="stat-icon">₹</span></div><div class="stat-value" id="totalCost">₹0.00</div><div class="stat-help">Cost basis of shares still held</div></div>
+        <div class="stat"><div class="stat-label">Current market value <span class="stat-icon">◈</span></div><div class="stat-value" id="marketValue">₹0.00</div><div class="stat-help">Based on prices you enter</div></div>
+        <div class="stat"><div class="stat-label">Unrealized P/L <span class="stat-icon">↗</span></div><div class="stat-value" id="unrealized">₹0.00</div><div class="stat-help">Value change on open holdings</div></div>
+        <div class="stat"><div class="stat-label">Realized P/L <span class="stat-icon">✓</span></div><div class="stat-value" id="realized">₹0.00</div><div class="stat-help">Completed sales, net of entered charges</div></div>
+      </div>
+      <div class="grid-two">
+        <div class="panel"><div class="panel-head"><h3>Holdings snapshot</h3><button class="btn btn-small" data-goto="portfolio">Open portfolio →</button></div><div id="overviewHoldings" class="table-wrap"><div class="empty"><strong>No investments recorded yet</strong>Record a completed purchase to start your portfolio.</div></div></div>
+        <div class="panel"><div class="panel-head"><h3>Market indices</h3><small>Live connection not enabled</small></div>
+          <div class="market-grid" style="grid-template-columns:1fr;margin:0">
+            <div class="market-card"><div><small>NIFTY 50 · NSE</small><strong>—</strong></div><div class="market-state">Awaiting approved<br>market data</div></div>
+            <div class="market-card"><div><small>SENSEX · BSE</small><strong>—</strong></div><div class="market-state">Awaiting approved<br>market data</div></div>
+          </div>
+          <div class="notice">Live market prices are not connected in this build. We will add a licensed feed only after the provider approves FinSim's intended use.</div>
+        </div>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>Recent transactions</h3><button class="btn btn-small" data-goto="transactions">View history →</button></div><div id="recentTransactions" class="table-wrap"><div class="empty">No transactions yet.</div></div></div>
+      <p class="footer-note">FinSim India is a tracking and learning tool. It does not execute, route or place orders on any exchange. Portfolio results depend on the information you enter and do not include taxes or charges unless you record them.</p>
+    </section>
+
+    <section class="page" id="page-portfolio">
+      <div class="page-intro"><div><h2>My portfolio</h2><p>Holdings are calculated from your recorded purchases and sales using FIFO accounting.</p></div><button class="btn btn-primary" data-add>＋ Add investment</button></div>
+      <div class="toolbar"><input class="search" id="holdingSearch" placeholder="Search company or symbol…" aria-label="Search holdings"></div>
+      <div id="holdingsTable" class="table-wrap"><div class="empty"><strong>Your portfolio is empty</strong>Record your first completed purchase.</div></div>
+      <div class="notice">To update a holding's valuation, use the “Current price” field in its row. In this version the price is manual, not a live exchange quote.</div>
+    </section>
+
+    <section class="page" id="page-transactions">
+      <div class="page-intro"><div><h2>Transaction history</h2><p>Every record includes the exchange selected at the time of entry.</p></div><button class="btn btn-primary" data-add>＋ Record transaction</button></div>
+      <div class="toolbar"><input class="search" id="transactionSearch" placeholder="Search company, symbol or exchange…" aria-label="Search transactions"><select id="typeFilter" style="max-width:170px"><option value="ALL">All types</option><option value="BUY">Purchases</option><option value="SELL">Sales</option><option value="DIVIDEND">Dividends</option></select><select id="exchangeFilter" style="max-width:150px"><option value="ALL">NSE + BSE</option><option value="NSE">NSE</option><option value="BSE">BSE</option></select></div>
+      <div id="transactionsTable" class="table-wrap"><div class="empty">No transactions recorded yet.</div></div>
+    </section>
+
+    <section class="page" id="page-markets">
+      <div class="page-intro"><div><h2>Indian markets</h2><p>NIFTY 50, SENSEX and company market data will appear here after an approved data connection is configured.</p></div><span class="tag">NSE + BSE</span></div>
+      <div class="market-grid">
+        <div class="market-card"><div><small>NIFTY 50 · NSE</small><strong>—</strong><small>Index value</small></div><div class="market-state">Feed not connected</div></div>
+        <div class="market-card"><div><small>SENSEX · BSE</small><strong>—</strong><small>Index value</small></div><div class="market-state">Feed not connected</div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>Market data connection</h3><span class="tag">PENDING APPROVAL</span></div><p class="muted" style="font-size:11px;line-height:1.8;margin:0">The app is prepared for an approved market-data integration, but no live data provider is connected. API credentials must be kept on a secure backend and must never be placed in this HTML file or the Android APK. We will confirm the provider's permitted display and portfolio-tracking use before enabling live prices.</p></div>
+      <div class="notice">The exchange selection in your portfolio identifies where you completed a transaction. Recording a transaction here does not send it to NSE or BSE or make it appear in the exchange order book.</div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="page-intro"><div><h2>Settings & backup</h2><p>Protect your portfolio records and move a backup to another device.</p></div></div>
+      <div class="settings-grid">
+        <div class="panel"><div class="panel-head"><h3>Data backup</h3><span class="tag">LOCAL STORAGE</span></div><div class="setting-row"><div><strong>Export portfolio</strong><small>Download your transactions and prices as a JSON backup.</small></div><button class="btn btn-small" id="settingsExport">Export</button></div><div class="setting-row"><div><strong>Import backup</strong><small>Restore a backup previously exported from FinSim India.</small></div><button class="btn btn-small" id="importBtn">Import</button></div><input id="importFile" type="file" accept="application/json,.json" class="hidden"></div>
+        <div class="panel"><div class="panel-head"><h3>How this version works</h3><span class="tag">DEMO BUILD</span></div><div class="setting-row"><div><strong>Portfolio records</strong><small>Saved in this browser on this device. This build does not yet sync between devices.</small></div></div><div class="setting-row"><div><strong>Profit calculation</strong><small>FIFO cost basis. Add charges to each purchase or sale for a closer net estimate.</small></div></div><div class="setting-row"><div><strong>Market prices</strong><small>Enter current prices manually until an approved market-data feed is connected.</small></div></div></div>
+      </div>
+      <div class="notice">Important: clear browser data with care. Doing so may erase the portfolio saved on this device. Export regular backups.</div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head"><div><div class="eyebrow">Portfolio ledger</div><h2 id="modalTitle">Record transaction</h2></div><button class="close" id="closeModal" aria-label="Close">✕</button></div>
+    <form id="transactionForm">
+      <div class="form-grid">
+        <div class="form-field"><label for="txType">Transaction type *</label><select id="txType" required><option value="BUY">Purchase (Buy)</option><option value="SELL">Sale (Sell)</option><option value="DIVIDEND">Dividend received</option></select></div>
+        <div class="form-field"><label for="txExchange">Exchange *</label><select id="txExchange" required><option value="NSE">NSE</option><option value="BSE">BSE</option></select></div>
+        <div class="form-field"><label for="txCompany">Company name *</label><input class="field" id="txCompany" maxlength="80" placeholder="e.g. Reliance Industries" required></div>
+        <div class="form-field"><label for="txSymbol">Trading symbol *</label><input class="field" id="txSymbol" maxlength="24" placeholder="e.g. RELIANCE" required autocapitalize="characters"></div>
+        <div class="form-field" id="quantityField"><label for="txQuantity">Quantity *</label><input class="field" id="txQuantity" type="number" min="0.000001" step="any" placeholder="e.g. 10" required></div>
+        <div class="form-field" id="priceField"><label for="txPrice">Price per share (₹) *</label><input class="field" id="txPrice" type="number" min="0.000001" step="any" placeholder="e.g. 1250" required></div>
+        <div class="form-field hidden" id="dividendField"><label for="txDividend">Dividend received (₹) *</label><input class="field" id="txDividend" type="number" min="0.01" step="any" placeholder="e.g. 250" required></div>
+        <div class="form-field"><label for="txCharges">Brokerage & charges (₹)</label><input class="field" id="txCharges" type="number" min="0" step="any" value="0" required></div>
+        <div class="form-field"><label for="txDate">Transaction date *</label><input class="field" id="txDate" type="date" required></div>
+        <div class="form-field full"><label for="txNotes">Notes (optional)</label><input class="field" id="txNotes" maxlength="160" placeholder="Broker, contract note reference, or a note"></div>
+      </div>
+      <p class="form-hint" id="formHint" style="margin:13px 0 0">Record only a purchase that has already been executed by your broker. This form does not place an order.</p>
+      <div class="field-error" id="formError" role="alert"></div>
+      <div class="modal-actions"><button class="btn" type="button" id="cancelModal">Cancel</button><button class="btn btn-primary" type="submit">Save transaction</button></div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'finsim_india_actual_portfolio_v1';
+  const $ = id => document.getElementById(id);
+  const today = () => new Date().toISOString().slice(0,10);
+  const money = value => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value)||0);
+  const number = value => new Intl.NumberFormat('en-IN',{maximumFractionDigits:4}).format(Number(value)||0);
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let data = loadData();
+  let toastTimer;
+
+  function loadData(){
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return {transactions:Array.isArray(parsed.transactions)?parsed.transactions:[], prices:parsed.prices && typeof parsed.prices==='object'?parsed.prices:{}};
+    } catch (_) { return {transactions:[],prices:{}}; }
+  }
+  function saveData(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (_) { toast('Could not save. Browser storage may be full or disabled.'); }
+  }
+  function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3300);}
+  function showPage(page){
+    document.querySelectorAll('.page').forEach(el=>el.classList.toggle('active',el.id===`page-${page}`));
+    document.querySelectorAll('.nav button').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
+    $('pageTitle').textContent=({overview:'Overview',portfolio:'Portfolio',transactions:'Transactions',markets:'Markets',settings:'Settings & backup'})[page]||'Overview';
+    $('sidebar').classList.remove('open');
+    renderAll();
+  }
+  document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
+  document.addEventListener('click',event=>{const goto=event.target.closest('[data-goto]');if(goto)showPage(goto.dataset.goto);if(event.target.closest('[data-add]'))openModal();});
+  $('menuBtn').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
+  $('addBtn').addEventListener('click',openModal);
+
+  // Rebuild holdings from transaction history, consuming buy lots in FIFO order.
+  function calculate(){
+    const sorted=[...data.transactions].sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt-b.createdAt);
+    const positions=new Map();let realized=0,dividends=0,errors=[];
+    for(const tx of sorted){
+      const key=tx.symbol.toUpperCase();
+      if(!positions.has(key))positions.set(key,{symbol:key,company:tx.company,lots:[],exchangeSet:new Set()});
+      const p=positions.get(key);p.company=tx.company||p.company;p.exchangeSet.add(tx.exchange);
+      if(tx.type==='BUY'){
+        p.lots.push({qty:Number(tx.quantity),unitCost:(Number(tx.price)*Number(tx.quantity)+Number(tx.charges||0))/Number(tx.quantity),exchange:tx.exchange,date:tx.date});
+      } else if(tx.type==='SELL'){
+        let remaining=Number(tx.quantity),cost=0;
+        for(const lot of p.lots){if(remaining<=0)break;const used=Math.min(lot.qty,remaining);lot.qty-=used;remaining-=used;cost+=used*lot.unitCost;}
+        if(remaining>1e-8){errors.push(`${tx.symbol} has a sale exceeding recorded purchases on ${tx.date}.`);continue;}
+        const proceeds=Number(tx.price)*Number(tx.quantity)-Number(tx.charges||0);realized+=proceeds-cost;
+      } else if(tx.type==='DIVIDEND') dividends+=Number(tx.amount||0)-Number(tx.charges||0);
+    }
+    const holdings=[];
+    for(const p of positions.values()){
+      const qty=p.lots.reduce((s,l)=>s+l.qty,0);if(qty<=1e-8)continue;
+      const cost=p.lots.reduce((s,l)=>s+l.qty*l.unitCost,0);const current=Number(data.prices[p.symbol]||0);const value=current>0?qty*current:null;
+      holdings.push({symbol:p.symbol,company:p.company,qty,cost,avg:cost/qty,current,value,unrealized:value===null?null:value-cost,exchanges:[...p.exchangeSet],lots:p.lots.filter(l=>l.qty>1e-8)});
+    }
+    holdings.sort((a,b)=>a.company.localeCompare(b.company));
+    const cost=holdings.reduce((s,h)=>s+h.cost,0);
+    const market=holdings.reduce((s,h)=>s+(h.value===null?0:h.value),0);
+    const priced=holdings.every(h=>h.value!==null);
+    const unrealized=holdings.reduce((s,h)=>s+(h.unrealized===null?0:h.unrealized),0);
+    return {holdings,cost,market,priced,unrealized,realized,dividends,errors,transactions:sorted};
+  }
+  function exchangeBadges(list){return list.map(x=>`<span class="exchange ${x==='BSE'?'bse':''}">${x}</span>`).join('');}
+  function pnlMarkup(value){if(value===null||!Number.isFinite(value))return '<span class="muted">—</span>';return `<span class="${value>0?'positive':value<0?'negative':''}">${value>0?'+':''}${money(value)}</span>`;}
+  function holdingRows(holdings, compact=false){
+    if(!holdings.length)return `<div class="empty"><strong>No investments recorded yet</strong>Record a completed purchase to see your holdings here.</div>`;
+    return `<table><thead><tr><th>Company</th><th>Exchange</th><th>Shares</th><th>Avg. cost</th>${compact?'':'<th>Current price</th>'}<th>Market value</th><th>Unrealized P/L</th></tr></thead><tbody>${holdings.map(h=>`<tr><td><strong>${safe(h.company)}</strong><br><span class="muted">${safe(h.symbol)}</span></td><td>${exchangeBadges(h.exchanges)}</td><td>${number(h.qty)}</td><td>${money(h.avg)}</td>${compact?'':`<td><div style="display:flex;align-items:center;gap:6px;min-width:145px"><input class="field price-input" aria-label="Current price for ${safe(h.symbol)}" data-price-symbol="${safe(h.symbol)}" type="number" min="0" step="any" placeholder="Enter price" value="${h.current>0?h.current:''}" style="width:105px;padding:7px;font-size:10px"><button class="btn btn-small" data-save-price="${safe(h.symbol)}">Save</button></div></td>`}<td>${h.value===null?'<span class="muted">Not set</span>':money(h.value)}</td><td>${pnlMarkup(h.unrealized)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function txRows(list){
+    if(!list.length)return '<div class="empty"><strong>No transactions found</strong>Use “Record transaction” to add a completed purchase, sale or dividend.</div>';
+    return `<table><thead><tr><th>Date</th><th>Type</th><th>Company</th><th>Exchange</th><th>Quantity</th><th>Price / Amount</th><th>Charges</th><th></th></tr></thead><tbody>${list.slice().reverse().map(tx=>`<tr><td>${safe(tx.date)}</td><td><span class="pill">${tx.type==='BUY'?'PURCHASE':tx.type==='SELL'?'SALE':'DIVIDEND'}</span></td><td><strong>${safe(tx.company)}</strong><br><span class="muted">${safe(tx.symbol)}</span></td><td>${exchangeBadges([tx.exchange])}</td><td>${tx.type==='DIVIDEND'?'—':number(tx.quantity)}</td><td>${money(tx.type==='DIVIDEND'?tx.amount:tx.price)}</td><td>${money(tx.charges||0)}</td><td><button class="btn btn-danger btn-small" data-delete-tx="${safe(tx.id)}" title="Delete transaction">Delete</button></td></tr>`).join('')}</tbody></table>`;
+  }
+  function renderAll(){
+    const c=calculate();
+    $('totalCost').textContent=money(c.cost);$('marketValue').textContent=c.priced||c.holdings.length===0?money(c.market):'Add prices';
+    $('unrealized').textContent=c.priced||c.holdings.length===0?money(c.unrealized):'Add prices';$('realized').textContent=money(c.realized);
+    $('unrealized').className='stat-value '+(c.unrealized>0?'positive':c.unrealized<0?'negative':'');$('realized').className='stat-value '+(c.realized>0?'positive':c.realized<0?'negative':'');
+    const search=($('holdingSearch')?.value||'').trim().toLowerCase();const filtered=c.holdings.filter(h=>`${h.company} ${h.symbol}`.toLowerCase().includes(search));
+    $('holdingsTable').innerHTML=holdingRows(filtered,false);$('overviewHoldings').innerHTML=holdingRows(c.holdings.slice(0,5),true);
+    const tsearch=($('transactionSearch')?.value||'').trim().toLowerCase();const type=$('typeFilter')?.value||'ALL';const exchange=$('exchangeFilter')?.value||'ALL';
+    const txfiltered=c.transactions.filter(tx=>(type==='ALL'||tx.type===type)&&(exchange==='ALL'||tx.exchange===exchange)&&`${tx.company} ${tx.symbol} ${tx.exchange}`.toLowerCase().includes(tsearch));
+    $('transactionsTable').innerHTML=txRows(txfiltered);$('recentTransactions').innerHTML=txRows(c.transactions.slice(-5));
+    $('recentTransactions').querySelectorAll('[data-delete-tx]').forEach(b=>b.remove());
+  }
+  $('holdingSearch').addEventListener('input',renderAll);$('transactionSearch').addEventListener('input',renderAll);$('typeFilter').addEventListener('change',renderAll);$('exchangeFilter').addEventListener('change',renderAll);
+  document.addEventListener('click',event=>{
+    const save=event.target.closest('[data-save-price]');if(save){const symbol=save.dataset.savePrice;const input=document.querySelector(`[data-price-symbol="${CSS.escape(symbol)}"]`);const price=Number(input?.value);if(!Number.isFinite(price)||price<=0){toast('Enter a valid current price.');return;}data.prices[symbol]=price;saveData();renderAll();toast(`Current price updated for ${symbol}.`);}
+    const del=event.target.closest('[data-delete-tx]');if(del){const tx=data.transactions.find(x=>x.id===del.dataset.deleteTx);if(!tx)return;if(!confirm('Delete this transaction? Your holdings and profit calculations will be recalculated.'))return;data.transactions=data.transactions.filter(x=>x.id!==tx.id);saveData();renderAll();toast('Transaction deleted and portfolio recalculated.');}
+  });
+
+  function openModal(){
+    $('transactionForm').reset();$('txDate').value=today();$('txCharges').value='0';$('txType').value='BUY';$('formError').textContent='';updateTypeFields();$('transactionModal').classList.remove('hidden');$('txType').focus();
+  }
+  function closeModal(){$('transactionModal').classList.add('hidden');}
+  $('closeModal').addEventListener('click',closeModal);$('cancelModal').addEventListener('click',closeModal);$('transactionModal').addEventListener('click',e=>{if(e.target===$('transactionModal'))closeModal();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+  function updateTypeFields(){
+    const type=$('txType').value;const dividend=type==='DIVIDEND';
+    $('quantityField').classList.toggle('hidden',dividend);$('priceField').classList.toggle('hidden',dividend);$('dividendField').classList.toggle('hidden',!dividend);
+    $('txQuantity').required=!dividend;$('txPrice').required=!dividend;$('txDividend').required=dividend;
+    $('formHint').textContent=type==='BUY'?'Record only a purchase that has already been executed by your broker. This form does not place an order.':type==='SELL'?'Record an actual sale already completed through your broker. A sale cannot exceed the shares held in this portfolio.':'Record a dividend that you have actually received. This does not submit any transaction to an exchange.';
+  }
+  $('txType').addEventListener('change',updateTypeFields);
+  $('transactionForm').addEventListener('submit',event=>{
+    event.preventDefault();$('formError').textContent='';
+    const type=$('txType').value,exchange=$('txExchange').value,company=$('txCompany').value.trim(),symbol=$('txSymbol').value.trim().toUpperCase().replace(/\s+/g,''),date=$('txDate').value,charges=Number($('txCharges').value||0);
+    if(!company||!symbol||!date||!['NSE','BSE'].includes(exchange)){ $('formError').textContent='Complete all required fields, including NSE or BSE.';return; }
+    if(date>today()){ $('formError').textContent='Transaction date cannot be in the future.';return; }
+    if(!Number.isFinite(charges)||charges<0){$('formError').textContent='Enter valid charges.';return;}
+    const tx={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()),type,exchange,company,symbol,date,charges,notes:$('txNotes').value.trim(),createdAt:Date.now()};
+    if(type==='DIVIDEND'){
+      tx.amount=Number($('txDividend').value);if(!Number.isFinite(tx.amount)||tx.amount<=0){$('formError').textContent='Enter a valid dividend amount.';return;}
+    } else {
+      tx.quantity=Number($('txQuantity').value);tx.price=Number($('txPrice').value);
+      if(!Number.isFinite(tx.quantity)||tx.quantity<=0||!Number.isFinite(tx.price)||tx.price<=0){$('formError').textContent='Quantity and price must be greater than zero.';return;}
+      if(type==='SELL'){
+        const available=calculate().holdings.find(h=>h.symbol===symbol)?.qty||0;
+        if(tx.quantity>available+1e-8){$('formError').textContent=`You have ${number(available)} ${symbol} shares recorded. You cannot record a sale of ${number(tx.quantity)}.`;return;}
+      }
+    }
+    data.transactions.push(tx);saveData();closeModal();renderAll();toast(`${type==='BUY'?'Purchase':type==='SELL'?'Sale':'Dividend'} recorded with ${exchange}.`);
+  });
+
+  function exportBackup(){
+    const blob=new Blob([JSON.stringify({app:'FinSim India',version:1,exportedAt:new Date().toISOString(),...data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`FinSim_India_Backup_${today()}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Portfolio backup exported.');
+  }
+  $('exportBtn').addEventListener('click',exportBackup);$('settingsExport').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',async event=>{
+    const file=event.target.files?.[0];if(!file)return;
+    try{const parsed=JSON.parse(await file.text());if(!Array.isArray(parsed.transactions)||!parsed.prices||typeof parsed.prices!=='object')throw new Error('This file is not a FinSim portfolio backup.');if(!confirm('Import this backup and replace the portfolio currently saved in this browser?'))return;data={transactions:parsed.transactions,prices:parsed.prices};saveData();renderAll();toast('Portfolio backup imported.');}
+    catch(error){toast(error.message||'Could not import this backup.');}
+    finally{event.target.value='';}
+  });
+  renderAll();
+})();
+</script>
+</body>
+</html>
