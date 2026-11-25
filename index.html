@@ -18,6 +18,7 @@
     .transaction-form{display:grid;gap:12px}.form-feedback{min-height:0;margin:0;font-size:11px;line-height:1.5;color:#ff9aa8}.form-feedback:empty{display:none}.form-feedback.success{color:#5ce0ae}.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.form-grid label{display:grid;gap:6px;color:#aab6cb;font-size:10px;font-weight:750}.form-grid input,.form-grid select,.price-edit{width:100%;min-width:90px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#0e192a;color:var(--text);font:inherit;font-size:11px}.form-hint{font-size:10px;margin:0;line-height:1.5}.price-edit{width:115px;padding:7px}.tx-delete{padding:6px 8px;font-size:9px}@media(max-width:900px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:420px){.form-grid{grid-template-columns:1fr}}
     .market-index-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 14px}.market-index{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(120deg,#171f39,#111b2d);min-width:0}.market-index .index-label{font-size:10px;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;font-weight:800}.market-index strong{display:block;font-size:23px;letter-spacing:-.6px;margin-top:5px}.market-index .index-move{font-size:12px;font-weight:800;margin-top:4px}.market-index .index-meta{font-size:9px;color:var(--muted);text-align:right;line-height:1.6}.home-index-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 15px}.home-index-item{min-width:0;padding:12px;border:1px solid var(--line);border-radius:11px;background:#0f192a}.home-index-item strong{display:block;font-size:21px;margin:6px 0;letter-spacing:-.5px}.home-index-item .index-move{font-size:10px;font-weight:800;line-height:1.5}.home-index-item .index-time{font-size:9px;color:var(--muted);margin-top:7px}.market-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.company-card{align-items:flex-start;min-height:112px}.company-quote{min-width:118px;text-align:right;margin-left:auto}.company-quote strong{display:block;font-size:13px;letter-spacing:-.3px}.company-quote small{display:block;margin-top:5px;font-size:9px;color:var(--muted)}.day-move{font-size:10px;font-weight:800;margin-top:4px}.quote-loading{color:#e8bd78}.quote-up{color:var(--green)}.quote-down{color:var(--red)}.quote-unavailable{color:#e8bd78}.market-footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:9px;margin:10px 2px 0}.btn:disabled{opacity:.5;cursor:wait}
     .trade-btn:hover{background:#2d8063}.holding-empty{padding:22px;text-align:center;color:var(--muted);font-size:11px}.pnl-positive{color:var(--green)!important}.pnl-negative{color:var(--red)!important}.company-card{flex-wrap:wrap}.company-quote{min-width:110px}
+    .mover-switches{display:flex;gap:8px;flex-wrap:wrap}.mover-switch{background:#101a2a;color:#9eabc1}.mover-switch.active{background:#29264f;border-color:#756be8;color:#d2ccff}.mover-change{font-weight:850}.mover-stock{font-weight:800}.mover-rank{color:var(--muted);font-variant-numeric:tabular-nums}
     @media(max-width:1000px){.grid-four{grid-template-columns:repeat(2,1fr)}.grid-two{grid-template-columns:1fr}}
     @media(max-width:760px){.auth-screen{grid-template-columns:1fr}.auth-showcase{display:none}.auth-side{min-height:100vh;padding:20px}.auth-card{padding:23px}.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:10;left:0;top:0;bottom:0;height:100vh;width:250px;transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 40px #0007}.sidebar.open{transform:translateX(0)}.main{padding:19px 14px 28px}.mobile-menu{display:inline-block}.topbar h1{font-size:21px}.user-pill{max-width:165px}.user-email{max-width:95px}.company-list{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.page-intro{align-items:flex-start;flex-direction:column}.market-index-grid{grid-template-columns:1fr}.home-index-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:390px){.grid-four{gap:8px}.stat{padding:12px}.stat-value{font-size:18px}.user-pill{display:none}}
@@ -56,6 +57,7 @@
       <nav class="nav" aria-label="Main navigation">
         <button class="active" data-page="home"><span class="nav-ico">▦</span>Home</button>
         <button data-page="markets"><span class="nav-ico">↗</span>Markets</button>
+        <button data-page="movers"><span class="nav-ico">↕</span>Top Gainers/Losers</button>
         <button data-page="watchlist"><span class="nav-ico">☆</span>Watchlist</button>
         <button data-page="portfolio"><span class="nav-ico">◫</span>Portfolio</button>
         <button data-page="settings"><span class="nav-ico">⚙</span>Settings</button>
@@ -88,6 +90,32 @@
         <div class="company-list" id="companyList"></div>
         <div class="market-footer"><span id="quoteUpdatedAt">Quotes have not been loaded yet.</span><span>Quote source: Yahoo Finance chart data via CORS relay · may be delayed</span></div>
         <div class="notice">Prices are the latest available market quotes, not sample values. Today’s ₹ change is calculated as the latest quote minus the previous close; the % is relative to the previous close. This is the observed daily move, not a prediction of tomorrow’s price. Data comes from Yahoo Finance's unofficial chart endpoint through a third-party CORS relay, may be delayed or unavailable, and is not an NSE-licensed feed. Do not use it for real-money decisions. For a public/commercial product, connect a licensed market-data provider. <a href="https://www.nseindia.com/static/products-services/indices-nifty50-index" target="_blank" rel="noopener" style="color:#c6bfff">NSE Nifty 50 constituent source</a> · <a href="https://cors.dev/guides/yahoo-finance-api-cors" target="_blank" rel="noopener" style="color:#c6bfff">Quote feed details</a>.</div>
+      </section>
+      <section class="page" id="page-movers">
+        <div class="page-intro">
+          <div><h2>Top Gainers &amp; Losers</h2><p>See which Nifty 50 shares have moved up or down the most today, based on the latest available quotes.</p></div>
+          <span class="tag">NIFTY 50 · DAILY MOVES</span>
+        </div>
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-head"><h3>Market movers</h3><small>Ranked by percentage change</small></div>
+          <div class="market-bar" style="align-items:center">
+            <div class="mover-switches" role="group" aria-label="Choose market movers">
+              <button class="btn mover-switch active" id="showGainersBtn" data-mover-direction="gainers" type="button" aria-pressed="true">↗ Top Gainers</button>
+              <button class="btn mover-switch" id="showLosersBtn" data-mover-direction="losers" type="button" aria-pressed="false">↘ Top Losers</button>
+            </div>
+            <select class="select" id="moversLimit" aria-label="Number of stocks to show">
+              <option value="5">Top 5 stocks</option>
+              <option value="10" selected>Top 10 stocks</option>
+              <option value="20">Top 20 stocks</option>
+            </select>
+            <button class="btn btn-primary" id="refreshMoversBtn" type="button">↻ Refresh quotes</button>
+          </div>
+          <div class="table-wrap" id="moversTable" aria-live="polite">
+            <div class="holding-empty">Loading available market quotes…</div>
+          </div>
+          <div class="market-footer"><span id="moversUpdatedAt">Waiting for the latest available quotes…</span><span>Sorted by today's percentage change</span></div>
+        </div>
+        <div class="notice">This ranking covers the Nifty 50 companies listed in FinSim India, not every NSE or BSE share. Prices are sourced from Yahoo Finance's unofficial chart feed through a third-party CORS relay and may be delayed or unavailable. Only successfully received quotes are ranked; this is market information, not investment advice.</div>
       </section>
       <section class="page" id="page-watchlist">
         <div class="page-intro"><div><h2>Your watchlist</h2><p>Track companies you want to follow. Your watchlist is saved in this browser for this account.</p></div></div>
@@ -209,6 +237,7 @@
     const quoteCache = new Map();
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
+    let moversDirection = 'gainers';
     // Holds a GitHub credential temporarily while the user signs in with the existing Google account.
     let pendingGithubCredential = null;
     let pendingGithubEmail = null;
@@ -279,9 +308,10 @@
     function navigate(page) {
       document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === `page-${page}`));
       document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-      $('pageTitle').textContent = ({home:'Home',markets:'Markets',watchlist:'Watchlist',portfolio:'Portfolio',activity:'Activity',settings:'Settings'})[page] || 'Home';
+      $('pageTitle').textContent = ({home:'Home',markets:'Markets',movers:'Top Gainers/Losers',watchlist:'Watchlist',portfolio:'Portfolio',activity:'Activity',settings:'Settings'})[page] || 'Home';
       $('sidebar').classList.remove('open');
       if (page === 'markets') renderCompanies();
+      if (page === 'movers') renderTopMovers();
       if (page === 'watchlist') renderWatchlist();
       if (page === 'portfolio') renderPortfolio();
     }
@@ -311,6 +341,73 @@
       const sector = $('sectorFilter')?.value || 'all';
       const matches = companies.filter(c => (sector === 'all' || sector === c.sector) && `${c.name} ${c.symbol} ${c.sector}`.toLowerCase().includes(q));
       $('companyList').innerHTML = matches.length ? matches.map(companyCard).join('') : '<div class="empty-state"><div><div class="empty-icon">⌕</div><strong>No companies found</strong><p>Try another company name, symbol or sector.</p></div></div>';
+    }
+    function renderTopMovers() {
+      const container = $('moversTable');
+      if (!container) return;
+
+      const gainersButton = $('showGainersBtn');
+      const losersButton = $('showLosersBtn');
+      if (gainersButton) {
+        gainersButton.classList.toggle('active', moversDirection === 'gainers');
+        gainersButton.setAttribute('aria-pressed', String(moversDirection === 'gainers'));
+      }
+      if (losersButton) {
+        losersButton.classList.toggle('active', moversDirection === 'losers');
+        losersButton.setAttribute('aria-pressed', String(moversDirection === 'losers'));
+      }
+
+      const available = companies.map(company => ({
+        company,
+        quote: quoteCache.get(company.symbol)
+      })).filter(item =>
+        item.quote && !item.quote.error &&
+        Number.isFinite(item.quote.price) &&
+        Number.isFinite(item.quote.change) &&
+        Number.isFinite(item.quote.changePercent)
+      );
+
+      available.sort((a, b) => moversDirection === 'gainers'
+        ? b.quote.changePercent - a.quote.changePercent
+        : a.quote.changePercent - b.quote.changePercent
+      );
+
+      const limit = Number($('moversLimit')?.value || 10);
+      const ranked = available.slice(0, limit);
+      if (!ranked.length) {
+        const loading = quoteCache.size === 0;
+        container.innerHTML = '<div class="holding-empty">' +
+          (loading
+            ? 'Fetching the latest available quotes…'
+            : 'No valid share quotes are available right now. Open Markets and try refreshing the quotes.') +
+          '</div>';
+      } else {
+        container.innerHTML = '<table><thead><tr><th>#</th><th>Company</th><th>Symbol</th><th>Sector</th><th>Last price</th><th>Change (₹)</th><th>Change (%)</th><th>Quote time</th></tr></thead><tbody>' +
+          ranked.map(({company, quote}, index) => {
+            const up = quote.change >= 0;
+            const sign = up ? '+' : '−';
+            const change = sign + formatINR(Math.abs(quote.change));
+            const percent = (up ? '+' : '') + quote.changePercent.toFixed(2) + '%';
+            const movementClass = up ? 'quote-up' : 'quote-down';
+            return '<tr>' +
+              '<td class="mover-rank">' + (index + 1) + '</td>' +
+              '<td class="mover-stock">' + escapeHtml(company.name) + '</td>' +
+              '<td><span class="tag">' + escapeHtml(company.symbol) + '</span></td>' +
+              '<td>' + escapeHtml(company.sector) + '</td>' +
+              '<td>' + formatINR(quote.price) + '</td>' +
+              '<td class="mover-change ' + movementClass + '">' + change + '</td>' +
+              '<td class="mover-change ' + movementClass + '">' + percent + '</td>' +
+              '<td class="muted">' + escapeHtml(quote.time || 'Latest available') + '</td>' +
+              '</tr>';
+          }).join('') + '</tbody></table>';
+      }
+
+      const status = $('moversUpdatedAt');
+      if (status) {
+        status.textContent = available.length
+          ? 'Showing ' + ranked.length + ' of ' + available.length + ' Nifty 50 companies with valid quotes.'
+          : 'Waiting for valid company quotes.';
+      }
     }
     function quoteSymbol(symbol) {
       const aliases = {'M&M':'M&M', 'TMPV':'TMPV'};
@@ -371,6 +468,7 @@
           loaded++;
         }));
         renderCompanies();
+        renderTopMovers();
         renderWatchlist();
         renderPortfolio();
         updateWalletDisplays();
@@ -588,7 +686,14 @@
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
     $('refreshQuotesBtn').addEventListener('click', () => refreshQuotes());
-
+    document.querySelectorAll('[data-mover-direction]').forEach(button => {
+      button.addEventListener('click', () => {
+        moversDirection = button.dataset.moverDirection;
+        renderTopMovers();
+      });
+    });
+    $('moversLimit').addEventListener('change', renderTopMovers);
+    $('refreshMoversBtn').addEventListener('click', () => refreshQuotes());
 
     // Firebase Authentication needs an HTTP(S) origin. Opening this HTML
     // directly as file:// prevents Firebase sign-in from working.
