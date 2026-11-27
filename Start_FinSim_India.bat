@@ -1,24 +1,63 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+title FinSim India
 
-set "PYTHON_CMD="
-where py >nul 2>nul && set "PYTHON_CMD=py"
-if not defined PYTHON_CMD where python >nul 2>nul && set "PYTHON_CMD=python"
+set "SOURCE=%~dp0"
+set "WEBROOT=%TEMP%\FinSimIndiaLocal"
+set "APP=%WEBROOT%\FinSim-India"
 
-if not defined PYTHON_CMD (
-  echo Python was not found on this PC.
-  echo Install Python 3 from https://www.python.org/downloads/
-  echo Then double-click this file again.
+if not exist "%SOURCE%index.html" (
+  echo ERROR: index.html was not found.
+  echo Extract the complete FinSim India ZIP, then run this BAT from that folder.
+  pause
+  exit /b 1
+)
+if not exist "%SOURCE%service-worker.js" (
+  echo ERROR: service-worker.js was not found.
+  echo Please extract the complete FinSim India ZIP before running this BAT.
+  pause
+  exit /b 1
+)
+if not exist "%SOURCE%manifest.webmanifest" (
+  echo ERROR: manifest.webmanifest was not found.
   pause
   exit /b 1
 )
 
-echo Starting FinSim India on http://localhost:5500/
-start "FinSim India local server" cmd /k "cd /d ""%~dp0"" && %PYTHON_CMD% -m http.server 5500 --bind 127.0.0.1"
-timeout /t 2 /nobreak >nul
-start "" "http://localhost:5500/"
+if exist "%APP%" rmdir /s /q "%APP%"
+mkdir "%APP%\icons" 2>nul
+mkdir "%APP%\data" 2>nul
 
+copy /y "%SOURCE%index.html" "%APP%\index.html" >nul
+copy /y "%SOURCE%service-worker.js" "%APP%\service-worker.js" >nul
+copy /y "%SOURCE%manifest.webmanifest" "%APP%\manifest.webmanifest" >nul
+
+if exist "%SOURCE%icons" xcopy "%SOURCE%icons\*" "%APP%\icons\" /e /i /y >nul
+if exist "%SOURCE%data\market-quotes.json" copy /y "%SOURCE%data\market-quotes.json" "%APP%\data\market-quotes.json" >nul
+
+where py >nul 2>nul
+if not errorlevel 1 (
+  start "FinSim India Server" /min py -m http.server 5500 --bind 127.0.0.1 --directory "%WEBROOT%"
+  goto OPEN_APP
+)
+
+where python >nul 2>nul
+if not errorlevel 1 (
+  start "FinSim India Server" /min python -m http.server 5500 --bind 127.0.0.1 --directory "%WEBROOT%"
+  goto OPEN_APP
+)
+
+echo Python was not found on this PC.
+echo Install Python from https://www.python.org/downloads/ and try again.
+pause
+exit /b 1
+
+:OPEN_APP
+timeout /t 2 /nobreak >nul
+start "" "http://127.0.0.1:5500/FinSim-India/"
 echo.
-echo Keep the FinSim India server window open while using the app.
-endlocal
+echo FinSim India is opening in your browser.
+echo Keep the minimized server window open while using FinSim.
+echo Close that server window to stop the local website.
+echo.
+exit /b 0
