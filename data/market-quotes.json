@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "status": "awaiting_authorization",
+  "message": "Automatic delayed quotes are not enabled. Confirm the required exchange data-sharing rights, then enable repository variable FINSIM_MARKET_DATA_AUTHORIZED=true.",
+  "dataDate": null,
+  "lagDays": null,
+  "quoteCount": 0,
+  "quotes": []
+}
