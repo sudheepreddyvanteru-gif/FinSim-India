@@ -96,15 +96,15 @@
           <input id="marketCsvFile" type="file" accept=".csv,text/csv" hidden>
         </div>
         <div class="notice" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px">
-          <div><strong>Price display mode</strong><br><small class="muted">Switch between moving practice prices and official historical exchange prices.</small></div>
+          <div><strong>Price display mode</strong><br><small class="muted">Official mode is selected by default. Simulation is a separate practice-only option.</small></div>
           <div class="mover-switches" role="group" aria-label="Market price display mode">
-            <button class="btn mover-switch active" id="simulationModeBtn" type="button" aria-pressed="true">↗ Simulation · moving</button>
-            <button class="btn mover-switch" id="officialModeBtn" type="button" aria-pressed="false">Official data · delayed</button>
+            <button class="btn mover-switch" id="simulationModeBtn" type="button" aria-pressed="false">Simulation · moving</button>
+            <button class="btn mover-switch active" id="officialModeBtn" type="button" aria-pressed="true">↗ Official NSE/BSE data</button>
           </div>
-          <span id="marketModeStatus" style="font-weight:800;color:#f0c66b">SIMULATION · synthetic prices update every 2 seconds</span>
+          <span id="marketModeStatus" style="font-weight:800;color:#78c7ff">OFFICIAL MODE · genuine exchange data only; no feed loaded until authorised data is supplied</span>
         </div>
         <div class="notice" style="margin:0 0 14px">
-          <strong>Official historical exchange closing prices — never live.</strong> When the automatic data feed is authorised and enabled, FinSim loads NSE/BSE shares, NIFTY 50 and SENSEX with a minimum 31-calendar-day lag. It refreshes from official historical reports. You can also import a 30+ day old official CSV manually; that file stays in this browser.
+          <strong>Genuine NSE/BSE historical closing prices — not live or intraday.</strong> When the automatic data feed is authorised and enabled, FinSim loads NSE/BSE shares, NIFTY 50 and SENSEX with a minimum 31-calendar-day lag. It refreshes from official historical reports. You can also import a 30+ day old official CSV manually; that file stays in this browser.
           <br><a href="https://www.nseindia.com/all-reports" target="_blank" rel="noopener" style="color:#c6bfff">NSE official reports</a> · <a href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx" target="_blank" rel="noopener" style="color:#c6bfff">BSE bhavcopy</a>
           <span id="delayedFeedStatus" style="display:block;margin-top:7px;color:#aab6cb">Automatic delayed feed is awaiting data-sharing authorisation.</span>
           <span id="marketCsvStatus" style="display:block;margin-top:5px;color:#aab6cb">No manual CSV imported yet.</span>
@@ -258,7 +258,7 @@
     let toastTimer;
     const quoteCache = new Map();
     const simulationQuotes = new Map();
-    let marketDisplayMode = 'simulation';
+    let marketDisplayMode = 'official';
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
     let selectedMarketExchange = 'NSE';
