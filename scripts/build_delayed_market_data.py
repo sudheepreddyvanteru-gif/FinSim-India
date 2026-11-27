@@ -50,9 +50,11 @@ def num(v):
         return float(s) if s and s not in ("-","--","NA","N/A") else None
     except ValueError: return None
 def parsedate(v):
-    for f in ("%Y-%m-%d","%Y%m%d","%d-%b-%Y","%d/%m/%Y","%d-%m-%Y"):
-        try: return datetime.strptime(str(v or "").strip()[:10],f).date()
-        except ValueError: pass
+    value = str(v or "").strip()
+    for candidate in (value, value[:10]):
+        for f in ("%Y-%m-%d","%Y%m%d","%d-%b-%Y","%d/%m/%Y","%d-%m-%Y"):
+            try: return datetime.strptime(candidate,f).date()
+            except ValueError: pass
     return None
 def fetch(url):
     with urlopen(Request(url,headers=HEADERS),timeout=45) as r: b=r.read()
