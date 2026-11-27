@@ -97,11 +97,7 @@
         </div>
         <div class="notice" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px">
           <div><strong>Price display mode</strong><br><small class="muted">Official mode is selected by default. Simulation is a separate practice-only option.</small></div>
-          <div class="mover-switches" role="group" aria-label="Market price display mode">
-            <button class="btn mover-switch" id="simulationModeBtn" type="button" aria-pressed="false">Simulation · moving</button>
-            <button class="btn mover-switch active" id="officialModeBtn" type="button" aria-pressed="true">↗ Official NSE/BSE data</button>
-          </div>
-          <span id="marketModeStatus" style="font-weight:800;color:#78c7ff">OFFICIAL MODE · genuine exchange data only; no feed loaded until authorised data is supplied</span>
+          <span style="font-weight:800;color:#78c7ff">OFFICIAL NSE/BSE DATA ONLY · no simulated prices</span>
         </div>
         <div class="notice" style="margin:0 0 14px">
           <strong>Genuine NSE/BSE historical closing prices — not live or intraday.</strong> When the automatic data feed is authorised and enabled, FinSim loads NSE/BSE shares, NIFTY 50 and SENSEX with a minimum 31-calendar-day lag. It refreshes from official historical reports. You can also import a 30+ day old official CSV manually; that file stays in this browser.
@@ -257,8 +253,7 @@
     let accountData = {watchlist:[],transactions:[],prices:{},marketQuotes:{},marketDataMeta:{}};
     let toastTimer;
     const quoteCache = new Map();
-    const simulationQuotes = new Map();
-    let marketDisplayMode = 'official';
+    const marketDisplayMode = 'official';
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
     let selectedMarketExchange = 'NSE';
@@ -267,81 +262,12 @@
     let pendingGithubCredential = null;
     let pendingGithubEmail = null;
 
-    function simulatedSeed(symbol,exchange){
-      let hash=exchange==='NSE'?23:71;
-      for(const char of String(symbol))hash=(hash*31+char.charCodeAt(0))%1000003;
-      return 120+(hash%7800);
-    }
-    function seedSimulationQuotes(){
-      simulationQuotes.clear();
-      companies.forEach(company=>{
-        ['NSE','BSE'].forEach(exchange=>{
-          const open=simulatedSeed(company.symbol,exchange);
-          const key=marketQuoteKey(exchange,company.symbol);
-          simulationQuotes.set(key,{
-            symbol:company.symbol,type:'equity',
-            price:open,previousClose:open,change:0,changePercent:0,
-            exchange,date:'SIMULATED',time:new Date().toISOString(),
-            source:'FinSim generated simulation',simulated:true,error:false
-          });
-        });
-      });
-      [['^NSEI','NSE',25100],['^BSESN','BSE',82400]].forEach(([symbol,exchange,open])=>{
-        simulationQuotes.set(indexQuoteKey(symbol),{
-          symbol,type:'index',
-          price:open,previousClose:open,change:0,changePercent:0,
-          exchange,date:'SIMULATED',time:new Date().toISOString(),
-          source:'FinSim generated simulation',simulated:true,error:false
-        });
-      });
-    }
     function getDisplayQuote(exchange,symbol){
-      const key=marketQuoteKey(exchange,symbol);
-      return marketDisplayMode==='simulation'?(simulationQuotes.get(key)||null):(quoteCache.get(key)||null);
+      return quoteCache.get(marketQuoteKey(exchange,symbol))||null;
     }
     function getDisplayIndexQuote(symbol){
-      const key=indexQuoteKey(symbol);
-      return marketDisplayMode==='simulation'?(simulationQuotes.get(key)||null):(quoteCache.get(key)||null);
+      return quoteCache.get(indexQuoteKey(symbol))||null;
     }
-    function tickSimulationQuotes(){
-      const now=new Date().toISOString();
-      simulationQuotes.forEach(quote=>{
-        const volatility=quote.symbol&&quote.type==='index'?0.00075:0.0024;
-        const drift=(Math.random()-0.49)*volatility*2;
-        quote.price=Math.max(0.05,quote.price*(1+drift));
-        quote.change=quote.price-quote.previousClose;
-        quote.changePercent=quote.previousClose?quote.change/quote.previousClose*100:0;
-        quote.time=now;
-      });
-    }
-    function setMarketDisplayMode(mode){
-      marketDisplayMode=mode==='official'?'official':'simulation';
-      const simulated=marketDisplayMode==='simulation';
-      $('simulationModeBtn').classList.toggle('active',simulated);
-      $('officialModeBtn').classList.toggle('active',!simulated);
-      $('simulationModeBtn').setAttribute('aria-pressed',String(simulated));
-      $('officialModeBtn').setAttribute('aria-pressed',String(!simulated));
-      const status=$('marketModeStatus');
-      if(status){
-        status.textContent=simulated
-          ?'SIMULATION · fictional prices move every 2 seconds'
-          :'OFFICIAL DATA · historical exchange closes (30+ day delay)';
-        status.style.color=simulated?'#f0c66b':'#78c7ff';
-      }
-      refreshMarketViews();
-      if(!simulated)loadDelayedMarketQuotes({silent:true});
-    }
-    function refreshMarketViews(){
-      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();
-      updateWalletDisplays();updateMarketIndexDisplays();
-      const status=$('quoteUpdatedAt');
-      if(status&&marketDisplayMode==='simulation')status.textContent='Simulation mode · fictional share prices are moving automatically.';
-      if(status&&marketDisplayMode==='official'){
-        const count=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
-        status.textContent=count?'Official historical quotes loaded · see each quote for its data date.':'No official prices loaded yet · import an eligible historical NSE/BSE CSV.';
-      }
-    }
-    seedSimulationQuotes();
     function setAuthMessage(message, type='') {
       const el = $('authMessage'); el.textContent = message || ''; el.className = 'auth-message' + (type ? ' ' + type : '');
     }
@@ -631,24 +557,22 @@
       indexes.forEach(({quote,ids})=>{
         const available=quote&&!quote.error&&Number.isFinite(quote.price),hasMove=available&&Number.isFinite(quote.change)&&Number.isFinite(quote.changePercent);
         const move=hasMove
-          ?(quote.simulated?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) · simulated`:`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`)
+          ?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`
           :'Import an official index-history CSV';
         animateMarketNumber($(ids.value),available?quote.price:NaN,formatIndex,'index:'+ids.value);
         if($(ids.move)){$(ids.move).textContent=move;$(ids.move).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
-        if($(ids.time))$(ids.time).textContent=available?(quote.simulated?'SIMULATION · fictional moving value':'Historical close · '+quote.exchange+' · '+quote.date):'No official index data loaded';
+        if($(ids.time))$(ids.time).textContent=available?'Historical close · '+quote.exchange+' · '+quote.date:'No official index data loaded';
         animateMarketNumber($(ids.homeValue),available?quote.price:NaN,formatIndex,'index:'+ids.homeValue);
         if($(ids.homeMove)){$(ids.homeMove).textContent=move;$(ids.homeMove).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
-        if($(ids.homeTime))$(ids.homeTime).textContent=available?(quote.simulated?'SIMULATION · fictional moving value':'Historical close · '+quote.date):'No official index data loaded';
+        if($(ids.homeTime))$(ids.homeTime).textContent=available?'Historical close · '+quote.date:'No official index data loaded';
       });
     }
     function refreshQuotes({silent=false}={}){
       renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();updateWalletDisplays();updateMarketIndexDisplays();
       const loaded=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
       const status=$('quoteUpdatedAt');
-      if(status)status.textContent=marketDisplayMode==='simulation'
-        ?'Simulation mode · fictional prices move automatically every 2 seconds.'
-        :(loaded?'Loaded '+loaded+' official historical quote records. See each card for its exchange and data date.':'No official historical prices imported yet.');
-      if(!silent&&!loaded&&marketDisplayMode==='official')showToast('No official exchange prices loaded. Import an eligible historical CSV (30+ days old).');
+      if(status)status.textContent=loaded?'Loaded '+loaded+' official historical quote records. See each card for its exchange and data date.':'No official historical prices imported yet.';
+      if(!silent&&!loaded)showToast('No official exchange prices loaded. Import an eligible historical CSV (30+ days old).');
     }
     async function loadDelayedMarketQuotes({silent=false}={}){
       const status=$('delayedFeedStatus');
@@ -919,8 +843,6 @@
         saveUserData(); renderCompanies(); renderWatchlist();
       }
     });
-    $('simulationModeBtn').addEventListener('click',()=>setMarketDisplayMode('simulation'));
-    $('officialModeBtn').addEventListener('click',()=>setMarketDisplayMode('official'));
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
     $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;renderCompanies();renderTopMovers();renderWatchlist();});
@@ -929,12 +851,6 @@
     $('marketCsvFile').addEventListener('change',event=>handleMarketCsv(event.target.files[0]));
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser)loadDelayedMarketQuotes({silent:true});});
     setInterval(()=>{if(currentUser)loadDelayedMarketQuotes({silent:true});},6*60*60*1000);
-    setInterval(()=>{
-      if(!currentUser||marketDisplayMode!=='simulation')return;
-      tickSimulationQuotes();
-      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();
-      updateWalletDisplays();updateMarketIndexDisplays();
-    },2000);
     document.querySelectorAll('[data-mover-direction]').forEach(button => {
       button.addEventListener('click', () => {
         moversDirection = button.dataset.moverDirection;
