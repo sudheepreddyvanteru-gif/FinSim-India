@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finsim-india-pwa-v3';
+const CACHE_NAME = 'finsim-india-pwa-v4';
 const APP_ROOT = '/FinSim-India/';
 
 self.addEventListener('install', event => {
