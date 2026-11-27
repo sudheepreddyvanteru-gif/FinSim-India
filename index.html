@@ -81,7 +81,7 @@
           <div class="panel"><div class="panel-head"><h3>Portfolio performance</h3><small>No history yet</small></div><div class="empty-state"><div><div class="empty-icon">⌁</div><strong>Performance will appear here</strong><p>Market quotes and company watchlists help you follow the market. Trading is not available in this version.</p></div></div></div>
           <div class="panel"><div class="panel-head"><h3>Market overview</h3><small>NSE + BSE</small></div><div class="home-index-grid"><div class="home-index-item"><div class="muted" style="font-size:10px;font-weight:800">NIFTY 50 · NSE</div><strong id="homeNiftyValue">—</strong><div id="homeNiftyMove" class="index-move muted">Waiting for quote…</div><div id="homeNiftyTime" class="index-time">No index CSV imported</div></div><div class="home-index-item"><div class="muted" style="font-size:10px;font-weight:800">SENSEX · BSE</div><strong id="homeSensexValue">—</strong><div id="homeSensexMove" class="index-move muted">Waiting for quote…</div><div id="homeSensexTime" class="index-time">No index CSV imported</div></div></div><button class="btn" type="button" data-goto="markets">View Indian markets →</button></div>
         </div>
-        <div class="panel"><div class="panel-head"><h3>Getting started</h3><small>YOUR NEXT STEPS</small></div><div class="setting-row"><div><strong>Explore listed companies</strong><small>Browse Nifty 50 shares with imported historical official closing prices and the recorded daily movement.</small></div><button class="btn btn-primary" data-goto="markets" type="button">Open markets</button></div><div class="setting-row"><div><strong>Load official exchange prices</strong><small>Import official historical exchange CSV data (minimum 30-day lag for public investor-education use).</small></div></div></div>
+        <div class="panel"><div class="panel-head"><h3>Getting started</h3><small>YOUR NEXT STEPS</small></div><div class="setting-row"><div><strong>Explore listed companies</strong><small>Browse NSE and BSE share prices with official historical closing values and daily movements.</small></div><button class="btn btn-primary" data-goto="markets" type="button">Open markets</button></div><div class="setting-row"><div><strong>Load official exchange prices</strong><small>Import official historical exchange CSV data (minimum 30-day lag for public investor-education use).</small></div></div></div>
       </section>
       <section class="page" id="page-markets">
         <div class="page-intro"><div><h2>Indian markets &amp; Nifty 50 companies</h2><p>Track the NSE Nifty 50 and BSE Sensex index, then browse Nifty 50 constituents with imported historical share closing prices.</p></div><span class="tag">NSE + BSE INDICES</span></div>
@@ -91,17 +91,19 @@
           <select class="select" id="sectorFilter" aria-label="Filter by sector"><option value="all">All sectors</option><option value="Financial Services">Financial services</option><option value="Information Technology">Information technology</option><option value="Healthcare">Healthcare</option><option value="Automobile">Automobile</option><option value="Metals & Mining">Metals & mining</option><option value="Consumer">Consumer</option><option value="Power & Energy">Power & energy</option><option value="Other">Other sectors</option></select>
           <select class="select" id="marketDataType" aria-label="Market data file type"><option value="equity">Equity bhavcopy</option><option value="index">Index history</option></select>
           <select class="select" id="marketDataExchange" aria-label="Exchange"><option value="NSE">NSE</option><option value="BSE">BSE</option></select>
-          <button class="btn btn-primary" id="refreshQuotesBtn" type="button">⇧ Import official CSV</button>
+          <button class="btn btn-primary" id="loadDelayedQuotesBtn" type="button">↻ Refresh delayed quotes</button>
+          <button class="btn" id="refreshQuotesBtn" type="button">⇧ Import CSV</button>
           <input id="marketCsvFile" type="file" accept=".csv,text/csv" hidden>
         </div>
         <div class="notice" style="margin:0 0 14px">
-          <strong>Actual exchange closing prices — historical data only.</strong> Download the official NSE/BSE bhavcopy CSV (extract the CSV first if the download is a ZIP), choose Equity bhavcopy or Index history, then import it here. For public investor-education use, select a trading date at least 30 days old. Your CSV is processed and saved in this browser; it is not uploaded to GitHub.
+          <strong>Official historical exchange closing prices — never live.</strong> When the automatic data feed is authorised and enabled, FinSim loads NSE/BSE shares, NIFTY 50 and SENSEX with a minimum 31-calendar-day lag. It refreshes from official historical reports. You can also import a 30+ day old official CSV manually; that file stays in this browser.
           <br><a href="https://www.nseindia.com/all-reports" target="_blank" rel="noopener" style="color:#c6bfff">NSE official reports</a> · <a href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx" target="_blank" rel="noopener" style="color:#c6bfff">BSE bhavcopy</a>
-          <span id="marketCsvStatus" style="display:block;margin-top:7px;color:#aab6cb">No official market file imported yet.</span>
+          <span id="delayedFeedStatus" style="display:block;margin-top:7px;color:#aab6cb">Automatic delayed feed is awaiting data-sharing authorisation.</span>
+          <span id="marketCsvStatus" style="display:block;margin-top:5px;color:#aab6cb">No manual CSV imported yet.</span>
         </div>
         <div class="company-list" id="companyList"></div>
-        <div class="market-footer"><span id="quoteUpdatedAt">No official market data imported yet.</span><span>Source: imported NSE/BSE bhavcopy · 30+ day lag</span></div>
-        <div class="notice">FinSim displays closing prices and previous-close movements from the CSV you import. It does not generate random prices or connect to a real-time feed. Equity bhavcopy files do not contain NIFTY 50 or SENSEX index values; import a separate official index-history CSV to update those cards. Data use and display remain subject to exchange terms and applicable SEBI rules.</div>
+        <div class="market-footer"><span id="quoteUpdatedAt">No official market data loaded yet.</span><span>Official historical closing prices · 31+ day lag</span></div>
+        <div class="notice">Daily gainers and losers are ranked from the selected exchange's historical closing prices. The automatic feed is not a live or intraday quote feed and must remain disabled until the required exchange data-sharing rights are confirmed. Manual CSV import remains available. No simulated or random prices are used.</div>
       </section>
       <section class="page" id="page-movers">
         <div class="page-intro">
@@ -314,6 +316,7 @@
       renderPortfolio();
       updateWalletDisplays();
       refreshQuotes({silent:true});
+      loadDelayedMarketQuotes({silent:true});
     }
     function showAuth() {
       currentUser = null;
@@ -554,6 +557,52 @@
       if(status)status.textContent=loaded?'Loaded '+loaded+' imported historical quote records. See each card for its exchange and data date.':'No imported historical price records yet.';
       if(!silent&&!loaded)showToast('No live feed is connected. Import an official historical CSV (30+ days old) to load actual closing prices.');
     }
+    async function loadDelayedMarketQuotes({silent=false}={}){
+      const status=$('delayedFeedStatus');
+      try{
+        const feedUrl=new URL('data/market-quotes.json',document.baseURI);
+        feedUrl.searchParams.set('refresh',String(Date.now()));
+        const response=await fetch(feedUrl.toString(),{cache:'no-store'});
+        if(!response.ok)throw new Error('The automatic quote file is not available yet.');
+        const feed=await response.json();
+        if(feed.status!=='ok')throw new Error(feed.message||'The automatic delayed feed has not been enabled.');
+        const parsedDate=parseMarketDate(feed.dataDate);
+        if(!parsedDate)throw new Error('The feed does not contain a valid exchange trading date.');
+        const age=marketDateAge(parsedDate);
+        if(age<30)throw new Error('Automatic feed rejected: its data is only '+age+' days old; at least 30 days are required.');
+        if(!Array.isArray(feed.quotes)||!feed.quotes.length)throw new Error('The delayed feed contains no quote records.');
+        let loaded=0;
+        for(const item of feed.quotes){
+          const price=Number(item.price),date=String(item.date||feed.dataDate),key=String(item.key||'');
+          if(!Number.isFinite(price)||price<=0||date!==feed.dataDate||!/^(NSE|BSE|INDEX):/.test(key))continue;
+          const existing=quoteCache.get(key);
+          if(existing&&existing.date&&existing.date>date)continue;
+          quoteCache.set(key,{
+            price,
+            previousClose:item.previousClose===null?null:Number(item.previousClose),
+            change:item.change===null?null:Number(item.change),
+            changePercent:item.changePercent===null?null:Number(item.changePercent),
+            exchange:String(item.exchange||''),date,time:date,
+            source:String(item.source||'Official historical exchange report'),error:false
+          });
+          loaded++;
+        }
+        if(!loaded)throw new Error('No usable share or index quotes were found in the automatic data file.');
+        accountData.marketDataMeta.Automatic=feed.dataDate;
+        saveUserData();
+        refreshQuotes({silent:true});
+        const label='Auto-loaded '+loaded+' official delayed quotes for '+feed.dataDate+' ('+age+' days old). Updated '+new Date(feed.generatedAt||Date.now()).toLocaleString()+'.';
+        if(status){status.textContent=label;status.style.color='#5ce0ae';}
+        $('quoteUpdatedAt').textContent=label;
+        $('moversUpdatedAt').textContent='Ranked from official historical closes dated '+feed.dataDate+'.';
+        return true;
+      }catch(error){
+        const message='Automatic delayed feed: '+(error.message||'not available');
+        if(status){status.textContent=message;status.style.color='#aab6cb';}
+        if(!silent)showToast(message);
+        return false;
+      }
+    }
     async function handleMarketCsv(file){
       if(!file)return;
       const exchange=$('marketDataExchange').value,type=$('marketDataType').value,status=$('marketCsvStatus');
@@ -778,8 +827,11 @@
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
     $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;renderCompanies();renderTopMovers();renderWatchlist();});
+    $('loadDelayedQuotesBtn').addEventListener('click',()=>loadDelayedMarketQuotes());
     $('refreshQuotesBtn').addEventListener('click',()=>$('marketCsvFile').click());
     $('marketCsvFile').addEventListener('change',event=>handleMarketCsv(event.target.files[0]));
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser)loadDelayedMarketQuotes({silent:true});});
+    setInterval(()=>{if(currentUser)loadDelayedMarketQuotes({silent:true});},6*60*60*1000);
     document.querySelectorAll('[data-mover-direction]').forEach(button => {
       button.addEventListener('click', () => {
         moversDirection = button.dataset.moverDirection;
