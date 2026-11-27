@@ -279,6 +279,7 @@
           const open=simulatedSeed(company.symbol,exchange);
           const key=marketQuoteKey(exchange,company.symbol);
           simulationQuotes.set(key,{
+            symbol:company.symbol,type:'equity',
             price:open,previousClose:open,change:0,changePercent:0,
             exchange,date:'SIMULATED',time:new Date().toISOString(),
             source:'FinSim generated simulation',simulated:true,error:false
@@ -287,6 +288,7 @@
       });
       [['^NSEI','NSE',25100],['^BSESN','BSE',82400]].forEach(([symbol,exchange,open])=>{
         simulationQuotes.set(indexQuoteKey(symbol),{
+          symbol,type:'index',
           price:open,previousClose:open,change:0,changePercent:0,
           exchange,date:'SIMULATED',time:new Date().toISOString(),
           source:'FinSim generated simulation',simulated:true,error:false
@@ -628,7 +630,9 @@
       ];
       indexes.forEach(({quote,ids})=>{
         const available=quote&&!quote.error&&Number.isFinite(quote.price),hasMove=available&&Number.isFinite(quote.change)&&Number.isFinite(quote.changePercent);
-        const move=hasMove?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`:'Import an official index-history CSV';
+        const move=hasMove
+          ?(quote.simulated?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) · simulated`:`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`)
+          :'Import an official index-history CSV';
         animateMarketNumber($(ids.value),available?quote.price:NaN,formatIndex,'index:'+ids.value);
         if($(ids.move)){$(ids.move).textContent=move;$(ids.move).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
         if($(ids.time))$(ids.time).textContent=available?(quote.simulated?'SIMULATION · fictional moving value':'Historical close · '+quote.exchange+' · '+quote.date):'No official index data loaded';
@@ -682,8 +686,8 @@
         refreshQuotes({silent:true});
         const label='Auto-loaded '+loaded+' official delayed quotes for '+feed.dataDate+' ('+age+' days old). Updated '+new Date(feed.generatedAt||Date.now()).toLocaleString()+'.';
         if(status){status.textContent=label;status.style.color='#5ce0ae';}
-        $('quoteUpdatedAt').textContent=label;
-        $('moversUpdatedAt').textContent='Ranked from official historical closes dated '+feed.dataDate+'.';
+        $('quoteUpdatedAt').textContent=marketDisplayMode==='official'?label:'Official delayed data refreshed in the background · '+feed.dataDate+'.';
+        if(marketDisplayMode==='official')$('moversUpdatedAt').textContent='Ranked from official historical closes dated '+feed.dataDate+'.';
         return true;
       }catch(error){
         const message='Automatic delayed feed: '+(error.message||'not available');
