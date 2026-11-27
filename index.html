@@ -73,7 +73,7 @@
         <div class="page-intro"><div><h2>Welcome to FinSim India</h2><p>Your virtual workspace is ready. Explore Indian companies and save the ones you want to follow.</p></div><span class="tag">PERSONAL WORKSPACE</span></div>
         <div class="grid-four">
           <div class="stat"><div class="stat-label">Total invested <span class="stat-icon">₹</span></div><div class="stat-value" id="investedValue">₹0</div><div class="stat-help">Cost of open holdings</div></div>
-          <div class="stat"><div class="stat-label">Current value <span class="stat-icon">◈</span></div><div class="stat-value" id="accountValue">₹0</div><div class="stat-help">Based on your entered prices</div></div>
+          <div class="stat"><div class="stat-label">Current value <span class="stat-icon">◈</span></div><div class="stat-value" id="accountValue">₹0</div><div class="stat-help">Imported historical close or manual fallback</div></div>
           <div class="stat"><div class="stat-label">Unrealized P/L <span class="stat-icon">↗</span></div><div class="stat-value" id="pnlValue">₹0</div><div class="stat-help">Open holdings only</div></div>
           <div class="stat"><div class="stat-label">Realized P/L <span class="stat-icon">✓</span></div><div class="stat-value" id="realizedHomeValue">₹0</div><div class="stat-help">Sales plus dividends, less charges</div></div>
         </div>
@@ -81,19 +81,31 @@
           <div class="panel"><div class="panel-head"><h3>Portfolio performance</h3><small>No history yet</small></div><div class="empty-state"><div><div class="empty-icon">⌁</div><strong>Performance will appear here</strong><p>Market quotes and company watchlists help you follow the market. Trading is not available in this version.</p></div></div></div>
           <div class="panel"><div class="panel-head"><h3>Market overview</h3><small>NSE + BSE</small></div><div class="home-index-grid"><div class="home-index-item"><div class="muted" style="font-size:10px;font-weight:800">NIFTY 50 · NSE</div><strong id="homeNiftyValue">—</strong><div id="homeNiftyMove" class="index-move muted">Waiting for quote…</div><div id="homeNiftyTime" class="index-time">No quote loaded</div></div><div class="home-index-item"><div class="muted" style="font-size:10px;font-weight:800">SENSEX · BSE</div><strong id="homeSensexValue">—</strong><div id="homeSensexMove" class="index-move muted">Waiting for quote…</div><div id="homeSensexTime" class="index-time">No quote loaded</div></div></div><button class="btn" type="button" data-goto="markets">View Indian markets →</button></div>
         </div>
-        <div class="panel"><div class="panel-head"><h3>Getting started</h3><small>YOUR NEXT STEPS</small></div><div class="setting-row"><div><strong>Explore listed companies</strong><small>Browse Nifty 50 shares with latest available prices and today’s rupee movement.</small></div><button class="btn btn-primary" data-goto="markets" type="button">Open markets</button></div><div class="setting-row"><div><strong>Connect live market data</strong><small>Quotes currently use an unofficial public chart feed; a licensed server-side provider is required for a commercial launch.</small></div></div></div>
+        <div class="panel"><div class="panel-head"><h3>Getting started</h3><small>YOUR NEXT STEPS</small></div><div class="setting-row"><div><strong>Explore listed companies</strong><small>Browse Nifty 50 shares with imported historical official closing prices and the recorded daily movement.</small></div><button class="btn btn-primary" data-goto="markets" type="button">Open markets</button></div><div class="setting-row"><div><strong>Connect live market data</strong><small>Import official historical exchange CSV data (minimum 30-day lag for public investor-education use).</small></div></div></div>
       </section>
       <section class="page" id="page-markets">
-        <div class="page-intro"><div><h2>Indian markets &amp; Nifty 50 companies</h2><p>Track the NSE Nifty 50 and BSE Sensex index, then browse Nifty 50 constituents with latest available share prices.</p></div><span class="tag">NSE + BSE INDICES</span></div>
+        <div class="page-intro"><div><h2>Indian markets &amp; Nifty 50 companies</h2><p>Track the NSE Nifty 50 and BSE Sensex index, then browse Nifty 50 constituents with imported historical share closing prices.</p></div><span class="tag">NSE + BSE INDICES</span></div>
         <div class="market-index-grid"><div class="market-index"><div><div class="index-label">NIFTY 50 · NSE index</div><strong id="niftyValue">—</strong><div id="niftyMove" class="index-move muted">Waiting for latest quote…</div></div><div class="index-meta"><div id="niftyTimestamp">No quote loaded</div><div>INR · Index points</div></div></div><div class="market-index"><div><div class="index-label">SENSEX · BSE index</div><strong id="sensexValue">—</strong><div id="sensexMove" class="index-move muted">Waiting for latest quote…</div></div><div class="index-meta"><div id="sensexTimestamp">No quote loaded</div><div>INR · Index points</div></div></div></div>
-        <div class="market-bar"><input class="search" id="marketSearch" placeholder="Search company or NSE symbol…" aria-label="Search companies"><select class="select" id="sectorFilter" aria-label="Filter by sector"><option value="all">All sectors</option><option value="Financial Services">Financial services</option><option value="Information Technology">Information technology</option><option value="Healthcare">Healthcare</option><option value="Automobile">Automobile</option><option value="Metals & Mining">Metals & mining</option><option value="Consumer">Consumer</option><option value="Power & Energy">Power & energy</option><option value="Other">Other sectors</option></select><button class="btn btn-primary" id="refreshQuotesBtn" type="button">↻ Refresh quotes</button></div>
+        <div class="market-bar">
+          <input class="search" id="marketSearch" placeholder="Search company or NSE symbol…" aria-label="Search companies">
+          <select class="select" id="sectorFilter" aria-label="Filter by sector"><option value="all">All sectors</option><option value="Financial Services">Financial services</option><option value="Information Technology">Information technology</option><option value="Healthcare">Healthcare</option><option value="Automobile">Automobile</option><option value="Metals & Mining">Metals & mining</option><option value="Consumer">Consumer</option><option value="Power & Energy">Power & energy</option><option value="Other">Other sectors</option></select>
+          <select class="select" id="marketDataType" aria-label="Market data file type"><option value="equity">Equity bhavcopy</option><option value="index">Index history</option></select>
+          <select class="select" id="marketDataExchange" aria-label="Exchange"><option value="NSE">NSE</option><option value="BSE">BSE</option></select>
+          <button class="btn btn-primary" id="refreshQuotesBtn" type="button">⇧ Import official CSV</button>
+          <input id="marketCsvFile" type="file" accept=".csv,text/csv" hidden>
+        </div>
+        <div class="notice" style="margin:0 0 14px">
+          <strong>Actual exchange closing prices — historical data only.</strong> Download the official NSE/BSE bhavcopy CSV, choose Equity bhavcopy or Index history, then import it here. For public investor-education use, select a trading date at least 30 days old. Your CSV is processed and saved in this browser; it is not uploaded to GitHub.
+          <br><a href="https://www.nseindia.com/all-reports" target="_blank" rel="noopener" style="color:#c6bfff">NSE official reports</a> · <a href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx" target="_blank" rel="noopener" style="color:#c6bfff">BSE bhavcopy</a>
+          <span id="marketCsvStatus" style="display:block;margin-top:7px;color:#aab6cb">No official market file imported yet.</span>
+        </div>
         <div class="company-list" id="companyList"></div>
-        <div class="market-footer"><span id="quoteUpdatedAt">Quotes have not been loaded yet.</span><span>Quote source: Yahoo Finance chart data via CORS relay · may be delayed</span></div>
-        <div class="notice">Prices are the latest available market quotes, not sample values. Today’s ₹ change is calculated as the latest quote minus the previous close; the % is relative to the previous close. This is the observed daily move, not a prediction of tomorrow’s price. Data comes from Yahoo Finance's unofficial chart endpoint through a third-party CORS relay, may be delayed or unavailable, and is not an NSE-licensed feed. Do not use it for real-money decisions. For a public/commercial product, connect a licensed market-data provider. <a href="https://www.nseindia.com/static/products-services/indices-nifty50-index" target="_blank" rel="noopener" style="color:#c6bfff">NSE Nifty 50 constituent source</a> · <a href="https://cors.dev/guides/yahoo-finance-api-cors" target="_blank" rel="noopener" style="color:#c6bfff">Quote feed details</a>.</div>
+        <div class="market-footer"><span id="quoteUpdatedAt">No official market data imported yet.</span><span>Source: imported NSE/BSE bhavcopy · 30+ day lag</span></div>
+        <div class="notice">FinSim displays closing prices and previous-close movements from the CSV you import. It does not generate random prices or connect to a real-time feed. Equity bhavcopy files do not contain NIFTY 50 or SENSEX index values; import a separate official index-history CSV to update those cards. Data use and display remain subject to exchange terms and applicable SEBI rules.</div>
       </section>
       <section class="page" id="page-movers">
         <div class="page-intro">
-          <div><h2>Top Gainers &amp; Losers</h2><p>See which Nifty 50 shares have moved up or down the most today, based on the latest available quotes.</p></div>
+          <div><h2>Top Gainers &amp; Losers</h2><p>See which Nifty 50 shares have moved up or down the most on the imported historical trading date.</p></div>
           <span class="tag">NIFTY 50 · DAILY MOVES</span>
         </div>
         <div class="panel" style="margin-bottom:14px">
@@ -108,14 +120,14 @@
               <option value="10" selected>Top 10 stocks</option>
               <option value="20">Top 20 stocks</option>
             </select>
-            <button class="btn btn-primary" id="refreshMoversBtn" type="button">↻ Refresh quotes</button>
+            <button class="btn btn-primary" id="refreshMoversBtn" type="button">⇧ Import official CSV</button>
           </div>
           <div class="table-wrap" id="moversTable" aria-live="polite">
             <div class="holding-empty">Loading available market quotes…</div>
           </div>
           <div class="market-footer"><span id="moversUpdatedAt">Waiting for the latest available quotes…</span><span>Sorted by today's percentage change</span></div>
         </div>
-        <div class="notice">This ranking covers the Nifty 50 companies listed in FinSim India, not every NSE or BSE share. Prices are sourced from Yahoo Finance's unofficial chart feed through a third-party CORS relay and may be delayed or unavailable. Only successfully received quotes are ranked; this is market information, not investment advice.</div>
+        <div class="notice">This ranking covers the Nifty 50 companies listed in FinSim India, not every NSE or BSE share. Rankings use the daily change shown in your imported historical exchange CSV; no live or estimated prices are generated.</div>
       </section>
       <section class="page" id="page-watchlist">
         <div class="page-intro"><div><h2>Your watchlist</h2><p>Track companies you want to follow. Your watchlist is saved in this browser for this account.</p></div></div>
@@ -125,7 +137,7 @@
         <div class="page-intro"><div><h2>Your portfolio</h2><p>Record completed investments from your broker. FinSim does not place exchange orders.</p></div></div>
         <div class="grid-four">
           <div class="stat"><div class="stat-label">Total invested <span class="stat-icon">₹</span></div><div class="stat-value" id="portfolioCost">₹0</div><div class="stat-help">Cost of open holdings</div></div>
-          <div class="stat"><div class="stat-label">Current value <span class="stat-icon">◈</span></div><div class="stat-value" id="portfolioMarket">₹0</div><div class="stat-help">Using manually entered prices</div></div>
+          <div class="stat"><div class="stat-label">Current value <span class="stat-icon">◈</span></div><div class="stat-value" id="portfolioMarket">₹0</div><div class="stat-help">Imported historical close or manual fallback</div></div>
           <div class="stat"><div class="stat-label">Unrealized P/L <span class="stat-icon">↗</span></div><div class="stat-value" id="portfolioPnl">₹0</div><div class="stat-help" id="portfolioPnlPct">0.00% return</div></div>
           <div class="stat"><div class="stat-label">Realized P/L <span class="stat-icon">✓</span></div><div class="stat-value" id="portfolioRealized">₹0</div><div class="stat-help">Includes recorded dividends</div></div>
         </div>
@@ -154,7 +166,7 @@
         <div class="page-intro"><div><h2>Account settings</h2><p>Manage your signed-in account and app status.</p></div></div>
         <div class="settings-grid">
           <div class="panel"><div class="panel-head"><h3>Account</h3><span class="tag">FIREBASE AUTH</span></div><div class="setting-row"><div><strong>Signed-in email</strong><small id="settingsEmail">—</small></div></div><div class="setting-row"><div><strong>Account ID</strong><small id="settingsUid">—</small></div></div><div class="setting-row"><div><strong>Authentication</strong><small id="settingsProvider">—</small></div></div><div class="setting-row"><div><strong>Sign out</strong><small>End your current session on this browser.</small></div><button class="btn btn-danger" id="settingsSignOut" type="button">Sign out</button></div></div>
-          <div class="panel"><div class="panel-head"><h3>FinSim India status</h3><span class="tag">SETUP</span></div><div class="setting-row"><div><strong>Authentication</strong><small>Google and GitHub sign-in are available for account access.</small></div><span class="tag">CONNECTED</span></div><div class="setting-row"><div><strong>Market data</strong><small>Unofficial Yahoo Finance chart data via CORS relay; may be delayed.</small></div><span class="tag">UNOFFICIAL FEED</span></div><div class="setting-row"><div><strong>Data storage</strong><small>Account preferences and watchlist are stored locally in this browser; cloud sync is not configured.</small></div><span class="tag">LOCAL</span></div></div>
+          <div class="panel"><div class="panel-head"><h3>FinSim India status</h3><span class="tag">SETUP</span></div><div class="setting-row"><div><strong>Authentication</strong><small>Google and GitHub sign-in are available for account access.</small></div><span class="tag">CONNECTED</span></div><div class="setting-row"><div><strong>Market data</strong><small>Official historical CSV imported by the user; at least 30 days old for public education use.</small></div><span class="tag">HISTORICAL CSV</span></div><div class="setting-row"><div><strong>Data storage</strong><small>Account preferences and watchlist are stored locally in this browser; cloud sync is not configured.</small></div><span class="tag">LOCAL</span></div></div>
         </div>
       </section>
     </main>
@@ -232,11 +244,12 @@
     const $ = id => document.getElementById(id);
     let auth = null;
     let currentUser = null;
-    let accountData = {watchlist:[],transactions:[],prices:{}};
+    let accountData = {watchlist:[],transactions:[],prices:{},marketQuotes:{},marketDataMeta:{}};
     let toastTimer;
     const quoteCache = new Map();
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
+    let selectedMarketExchange = 'NSE';
     let moversDirection = 'gainers';
     // Holds a GitHub credential temporarily while the user signs in with the existing Google account.
     let pendingGithubCredential = null;
@@ -268,14 +281,20 @@
           watchlist:Array.isArray(raw.watchlist) ? raw.watchlist.filter(s => companies.some(c => c.symbol === s)) : [],
           // Legacy virtual trades/holdings are deliberately not imported as real investments.
           transactions:Array.isArray(raw.realTransactions) ? raw.realTransactions : [],
-          prices:raw.realPrices && typeof raw.realPrices === 'object' ? raw.realPrices : {}
+          prices:raw.realPrices && typeof raw.realPrices === 'object' ? raw.realPrices : {},
+          marketQuotes:raw.marketQuotes && typeof raw.marketQuotes === 'object' ? raw.marketQuotes : {},
+          marketDataMeta:raw.marketDataMeta && typeof raw.marketDataMeta === 'object' ? raw.marketDataMeta : {}
         };
+        quoteCache.clear();
+        Object.entries(accountData.marketQuotes).forEach(([key,quote]) => {
+          if (quote && Number.isFinite(Number(quote.price)) && Number(quote.price) > 0) quoteCache.set(key,quote);
+        });
         saveUserData();
-      } catch (_) { accountData = {watchlist:[],transactions:[],prices:{}}; saveUserData(); }
+      } catch (_) { accountData = {watchlist:[],transactions:[],prices:{},marketQuotes:{},marketDataMeta:{}}; quoteCache.clear(); saveUserData(); }
     }
     function saveUserData() {
       if (!currentUser) return;
-      try { localStorage.setItem(`finsim_india_account_${currentUser.uid}`, JSON.stringify({watchlist:accountData.watchlist,realTransactions:accountData.transactions,realPrices:accountData.prices})); }
+      try { accountData.marketQuotes = Object.fromEntries(quoteCache.entries()); localStorage.setItem(`finsim_india_account_${currentUser.uid}`, JSON.stringify({watchlist:accountData.watchlist,realTransactions:accountData.transactions,realPrices:accountData.prices,marketQuotes:accountData.marketQuotes,marketDataMeta:accountData.marketDataMeta})); }
       catch (_) { showToast('Browser storage is unavailable.'); }
     }
     function showApp(user) {
@@ -366,170 +385,191 @@
       };
       marketNumberAnimations.set(element, requestAnimationFrame(frame));
     }
+    function marketQuoteKey(exchange,symbol) { return exchange + ':' + String(symbol).toUpperCase(); }
+    function indexQuoteKey(indexSymbol) { return 'INDEX:' + indexSymbol; }
     function moveMarkup(quote) {
-      if (!quote || !Number.isFinite(quote.change) || !Number.isFinite(quote.changePercent)) return '<span class="day-move quote-unavailable">Day move —</span>';
-      const positive = quote.change >= 0;
-      const klass = positive ? 'quote-up' : 'quote-down';
-      const sign = positive ? '+' : '−';
-      return `<span class="day-move ${klass}">${sign}${formatINR(Math.abs(quote.change))} (${positive?'+':''}${quote.changePercent.toFixed(2)}%) today</span>`;
+      if (!quote || !Number.isFinite(quote.change) || !Number.isFinite(quote.changePercent)) return '<span class="day-move quote-unavailable">Historical day move —</span>';
+      const positive = quote.change >= 0, klass = positive ? 'quote-up' : 'quote-down', sign = positive ? '+' : '−';
+      return \`<span class="day-move \${klass}">\${sign}\${formatINR(Math.abs(quote.change))} (\${positive?'+':''}\${quote.changePercent.toFixed(2)}%) on \${escapeHtml(quote.date || 'imported date')}</span>\`;
     }
     function companyCard(company) {
       const watched = accountData.watchlist.includes(company.symbol);
-      const quote = quoteCache.get(company.symbol);
+      const quote = quoteCache.get(marketQuoteKey(selectedMarketExchange,company.symbol));
       const price = quote && Number.isFinite(quote.price) ? formatINR(quote.price) : '—';
-      const state = quote ? (quote.error ? '<small class="quote-unavailable">Quote unavailable</small>' : `<small>${quote.time ? 'As of ' + escapeHtml(quote.time) : 'Last available quote'}</small>`) : '<small class="quote-loading">Loading quote…</small>';
-      return `<article class="company-card"><div class="company-mark">${escapeHtml(company.symbol.slice(0,2))}</div><div class="company-meta"><strong title="${escapeHtml(company.name)}">${escapeHtml(company.name)}</strong><small>${escapeHtml(company.symbol)} · ${escapeHtml(company.sector)}</small>${state}</div><div class="company-quote"><strong class="market-number" data-market-symbol="${escapeHtml(company.symbol)}">${price}</strong>${moveMarkup(quote)}</div><button class="watch-btn ${watched?'on':''}" type="button" data-watch="${escapeHtml(company.symbol)}" aria-label="${watched?'Remove from':'Add to'} watchlist">${watched?'★':'☆'}</button></article>`;
+      const state = quote
+        ? \`<small>\${escapeHtml(quote.exchange)} bhavcopy · close dated \${escapeHtml(quote.date || 'unknown')}</small>\`
+        : \`<small class="quote-unavailable">No \${selectedMarketExchange} CSV loaded for this share</small>\`;
+      return \`<article class="company-card"><div class="company-mark">\${escapeHtml(company.symbol.slice(0,2))}</div><div class="company-meta"><strong title="\${escapeHtml(company.name)}">\${escapeHtml(company.name)}</strong><small>\${escapeHtml(company.symbol)} · \${escapeHtml(company.sector)}</small>\${state}</div><div class="company-quote"><strong class="market-number" data-market-symbol="\${escapeHtml(company.symbol)}">\${price}</strong>\${moveMarkup(quote)}</div><button class="watch-btn \${watched?'on':''}" type="button" data-watch="\${escapeHtml(company.symbol)}" aria-label="\${watched?'Remove from':'Add to'} watchlist">\${watched?'★':'☆'}</button></article>\`;
     }
     function renderCompanies() {
       const q = ($('marketSearch')?.value || '').trim().toLowerCase();
       const sector = $('sectorFilter')?.value || 'all';
-      const matches = companies.filter(c => (sector === 'all' || sector === c.sector) && `${c.name} ${c.symbol} ${c.sector}`.toLowerCase().includes(q));
+      const matches = companies.filter(c => (sector === 'all' || sector === c.sector) && \`\${c.name} \${c.symbol} \${c.sector}\`.toLowerCase().includes(q));
       $('companyList').innerHTML = matches.length ? matches.map(companyCard).join('') : '<div class="empty-state"><div><div class="empty-icon">⌕</div><strong>No companies found</strong><p>Try another company name, symbol or sector.</p></div></div>';
       $('companyList').querySelectorAll('[data-market-symbol]').forEach(element => {
         const symbol = element.dataset.marketSymbol;
-        const quote = quoteCache.get(symbol);
-        animateMarketNumber(element, quote && !quote.error ? quote.price : NaN, formatINR, 'company:' + symbol);
+        const quote = quoteCache.get(marketQuoteKey(selectedMarketExchange,symbol));
+        animateMarketNumber(element, quote && !quote.error ? quote.price : NaN, formatINR, 'company:' + selectedMarketExchange + ':' + symbol);
       });
     }
     function renderTopMovers() {
       const container = $('moversTable');
       if (!container) return;
-
-      const gainersButton = $('showGainersBtn');
-      const losersButton = $('showLosersBtn');
-      if (gainersButton) {
-        gainersButton.classList.toggle('active', moversDirection === 'gainers');
-        gainersButton.setAttribute('aria-pressed', String(moversDirection === 'gainers'));
-      }
-      if (losersButton) {
-        losersButton.classList.toggle('active', moversDirection === 'losers');
-        losersButton.setAttribute('aria-pressed', String(moversDirection === 'losers'));
-      }
-
-      const available = companies.map(company => ({
-        company,
-        quote: quoteCache.get(company.symbol)
-      })).filter(item =>
-        item.quote && !item.quote.error &&
-        Number.isFinite(item.quote.price) &&
-        Number.isFinite(item.quote.change) &&
-        Number.isFinite(item.quote.changePercent)
-      );
-
-      available.sort((a, b) => moversDirection === 'gainers'
-        ? b.quote.changePercent - a.quote.changePercent
-        : a.quote.changePercent - b.quote.changePercent
-      );
-
-      const limit = Number($('moversLimit')?.value || 10);
-      const ranked = available.slice(0, limit);
-      if (!ranked.length) {
-        const loading = quoteCache.size === 0;
-        container.innerHTML = '<div class="holding-empty">' +
-          (loading
-            ? 'Fetching the latest available quotes…'
-            : 'No valid share quotes are available right now. Open Markets and try refreshing the quotes.') +
-          '</div>';
+      const gainersButton = $('showGainersBtn'), losersButton = $('showLosersBtn');
+      if (gainersButton) { gainersButton.classList.toggle('active',moversDirection==='gainers'); gainersButton.setAttribute('aria-pressed',String(moversDirection==='gainers')); }
+      if (losersButton) { losersButton.classList.toggle('active',moversDirection==='losers'); losersButton.setAttribute('aria-pressed',String(moversDirection==='losers')); }
+      const available = companies.map(company => ({company,quote:quoteCache.get(marketQuoteKey(selectedMarketExchange,company.symbol))}))
+        .filter(item=>item.quote&&!item.quote.error&&Number.isFinite(item.quote.price)&&Number.isFinite(item.quote.change)&&Number.isFinite(item.quote.changePercent));
+      available.sort((a,b)=>moversDirection==='gainers'?b.quote.changePercent-a.quote.changePercent:a.quote.changePercent-b.quote.changePercent);
+      const limit=Number($('moversLimit')?.value||10),ranked=available.slice(0,limit);
+      if(!ranked.length){
+        container.innerHTML='<div class="holding-empty">No imported '+selectedMarketExchange+' historical share prices yet. Open Markets and import an official equity bhavcopy CSV.</div>';
       } else {
-        container.innerHTML = '<table><thead><tr><th>#</th><th>Company</th><th>Symbol</th><th>Sector</th><th>Last price</th><th>Change (₹)</th><th>Change (%)</th><th>Quote time</th></tr></thead><tbody>' +
-          ranked.map(({company, quote}, index) => {
-            const up = quote.change >= 0;
-            const sign = up ? '+' : '−';
-            const change = sign + formatINR(Math.abs(quote.change));
-            const percent = (up ? '+' : '') + quote.changePercent.toFixed(2) + '%';
-            const movementClass = up ? 'quote-up' : 'quote-down';
-            return '<tr>' +
-              '<td class="mover-rank">' + (index + 1) + '</td>' +
-              '<td class="mover-stock">' + escapeHtml(company.name) + '</td>' +
-              '<td><span class="tag">' + escapeHtml(company.symbol) + '</span></td>' +
-              '<td>' + escapeHtml(company.sector) + '</td>' +
-              '<td>' + formatINR(quote.price) + '</td>' +
-              '<td class="mover-change ' + movementClass + '">' + change + '</td>' +
-              '<td class="mover-change ' + movementClass + '">' + percent + '</td>' +
-              '<td class="muted">' + escapeHtml(quote.time || 'Latest available') + '</td>' +
-              '</tr>';
-          }).join('') + '</tbody></table>';
+        container.innerHTML='<table><thead><tr><th>#</th><th>Company</th><th>Symbol</th><th>Sector</th><th>Close price</th><th>Change (₹)</th><th>Change (%)</th><th>Data date</th></tr></thead><tbody>'+
+          ranked.map(({company,quote},index)=>{
+            const up=quote.change>=0,sign=up?'+':'−',movementClass=up?'quote-up':'quote-down';
+            return '<tr><td class="mover-rank">'+(index+1)+'</td><td class="mover-stock">'+escapeHtml(company.name)+'</td><td><span class="tag">'+escapeHtml(company.symbol)+'</span></td><td>'+escapeHtml(company.sector)+'</td><td>'+formatINR(quote.price)+'</td><td class="mover-change '+movementClass+'">'+sign+formatINR(Math.abs(quote.change))+'</td><td class="mover-change '+movementClass+'">'+(up?'+':'')+quote.changePercent.toFixed(2)+'%</td><td class="muted">'+escapeHtml(quote.date||'—')+'</td></tr>';
+          }).join('')+'</tbody></table>';
       }
-
-      const status = $('moversUpdatedAt');
-      if (status) {
-        status.textContent = available.length
-          ? 'Showing ' + ranked.length + ' of ' + available.length + ' Nifty 50 companies with valid quotes.'
-          : 'Waiting for valid company quotes.';
+      const status=$('moversUpdatedAt');
+      if(status)status.textContent=available.length?'Showing '+ranked.length+' of '+available.length+' '+selectedMarketExchange+' shares from imported historical data.':'Waiting for an official equity CSV import.';
+    }
+    function csvRows(text) {
+      const rows=[];let row=[],field='',quoted=false;
+      text=String(text||'').replace(/^\uFEFF/,'');
+      for(let i=0;i<text.length;i++){
+        const c=text[i],next=text[i+1];
+        if(quoted){if(c==='"'&&next==='"'){field+='"';i++;}else if(c==='"')quoted=false;else field+=c;}
+        else if(c==='"')quoted=true;
+        else if(c===','){row.push(field);field='';}
+        else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';}
+        else if(c!=='\r')field+=c;
       }
+      if(field.length||row.length){row.push(field);rows.push(row);}
+      return rows.filter(r=>r.some(v=>String(v).trim()!==''));
     }
-    function quoteSymbol(symbol) {
-      const aliases = {'M&M':'M&M', 'TMPV':'TMPV'};
-      return (aliases[symbol] || symbol) + '.NS';
+    function csvNorm(value){return String(value||'').replace(/^\uFEFF/,'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+    function csvColumn(headers,names){for(const name of names){const i=headers.findIndex(h=>csvNorm(h)===csvNorm(name));if(i>=0)return i;}return -1;}
+    function parseMarketDate(raw){
+      const value=String(raw||'').trim();let m=value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if(m)return new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3])));
+      m=value.match(/^(\d{8})$/);
+      if(m)return new Date(Date.UTC(Number(value.slice(0,4)),Number(value.slice(4,6))-1,Number(value.slice(6,8))));
+      m=value.match(/^(\d{1,2})[-/ ]([A-Za-z]{3}|\d{1,2})[-/ ](\d{2,4})$/);
+      if(m){const month=/^\d+$/.test(m[2])?Number(m[2])-1:['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[2].toLowerCase());let year=Number(m[3]);if(year<100)year+=year>=70?1900:2000;if(month>=0&&month<12)return new Date(Date.UTC(year,month,Number(m[1])));}
+      return null;
     }
-    function quoteTime(timestamp) {
-      if (!timestamp) return '';
-      return new Date(timestamp * 1000).toLocaleString('en-IN', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
-    }
-    async function fetchOneQuote(yahooSymbol) {
-      const endpoint = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=1d&interval=1d`;
-      const response = await fetch('https://proxy.cors.dev/' + endpoint, {credentials:'omit', cache:'no-store'});
-      const body = await response.json().catch(() => null);
-      if (!response.ok) {
-        const detail = response.headers.get('X-Cors-Error') || body?.chart?.error?.description || response.status;
-        throw new Error(String(detail));
+    function marketDateISO(date){return date.toISOString().slice(0,10);}
+    function marketDateAge(date){const now=new Date(),today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());return Math.floor((today-date.getTime())/86400000);}
+    function csvPrice(value){const n=Number(String(value||'').replace(/,/g,'').trim());return Number.isFinite(n)&&n>0?n:null;}
+    function normalizedCompanyName(value){return String(value||'').toLowerCase().replace(/&/g,'and').replace(/\b(limited|ltd|company|co|corporation|corp|india)\b/g,'').replace(/[^a-z0-9]/g,'');}
+    function matchCompanySymbol(rawSymbol,rawName,exchange){
+      const symbol=String(rawSymbol||'').trim().toUpperCase();
+      if(companies.some(c=>c.symbol===symbol))return symbol;
+      if(exchange==='BSE'||rawName){
+        const target=normalizedCompanyName(rawName);
+        if(target){const match=companies.find(c=>{const candidate=normalizedCompanyName(c.name);return candidate===target||candidate.startsWith(target)||target.startsWith(candidate);});if(match)return match.symbol;}
       }
-      const meta = body?.chart?.result?.[0]?.meta;
-      if (!meta || !Number.isFinite(Number(meta.regularMarketPrice)) || !Number.isFinite(Number(meta.chartPreviousClose))) throw new Error('Quote fields missing');
-      if (meta.currency && meta.currency !== 'INR') throw new Error('Unexpected currency: ' + meta.currency);
-      const price = Number(meta.regularMarketPrice);
-      const previousClose = Number(meta.chartPreviousClose);
-      const change = price - previousClose;
-      return {price, previousClose, change, changePercent: previousClose ? change / previousClose * 100 : 0, timestamp:meta.regularMarketTime || null, time:quoteTime(meta.regularMarketTime), currency:meta.currency || 'INR'};
+      return '';
     }
-    function updateMarketIndexDisplays() {
-      const indexes = [
-        {quote:quoteCache.get('^NSEI'), ids:{value:'niftyValue',move:'niftyMove',time:'niftyTimestamp',homeValue:'homeNiftyValue',homeMove:'homeNiftyMove',homeTime:'homeNiftyTime'}},
-        {quote:quoteCache.get('^BSESN'), ids:{value:'sensexValue',move:'sensexMove',time:'sensexTimestamp',homeValue:'homeSensexValue',homeMove:'homeSensexMove',homeTime:'homeSensexTime'}}
+    function importEquityCsv(text,exchange){
+      const rows=csvRows(text);if(rows.length<2)throw new Error('The CSV appears to be empty.');
+      const headers=rows[0],dateCol=csvColumn(headers,['TradDt','BizDt','Trading Date','Trade Date','TRADING_DATE','DATE','TIMESTAMP']);
+      const symbolCol=csvColumn(headers,['TckrSymb','SYMBOL','SECURITY_ID','SCRIP_CD','SC_CODE','Security Code','Scrip Code']);
+      const nameCol=csvColumn(headers,['FinInstrmNm','SC_NAME','SCRIP_NAME','Security Name','Company Name','NAME']);
+      const seriesCol=csvColumn(headers,['SctySrs','SERIES','SC_GROUP','GROUP']);
+      const closeCol=csvColumn(headers,['ClsPric','CLOSE','CLOSE_PRICE','CLOSE PRICE','Close Price']);
+      const prevCol=csvColumn(headers,['PrvsClsgPric','PREVCLOSE','PREV_CLOSE','PREVIOUS CLOSE','Prev Close']);
+      if(dateCol<0||symbolCol<0||closeCol<0)throw new Error('Required columns not found. NSE UDiFF equity files normally contain TradDt, TckrSymb, SctySrs, ClsPric and PrvsClsgPric.');
+      let fileDate=null,matched=0;const quotes=new Map();
+      for(let i=1;i<rows.length;i++){
+        const r=rows[i],d=parseMarketDate(r[dateCol]);if(!d)continue;
+        if(!fileDate)fileDate=d;
+        if(marketDateISO(d)!==marketDateISO(fileDate))throw new Error('Please import one trading date per CSV file.');
+        const series=seriesCol>=0?String(r[seriesCol]||'').trim().toUpperCase():'';
+        if(exchange==='NSE'&&series&&series!=='EQ')continue;
+        const rawSymbol=String(r[symbolCol]||'').trim().toUpperCase(),rawName=nameCol>=0?String(r[nameCol]||'').trim():'';
+        const symbol=matchCompanySymbol(rawSymbol,rawName,exchange),close=csvPrice(r[closeCol]);
+        if(!symbol||!close)continue;
+        const prevClose=prevCol>=0?csvPrice(r[prevCol]):null,change=prevClose!==null?close-prevClose:null,changePercent=prevClose?change/prevClose*100:null;
+        quotes.set(marketQuoteKey(exchange,symbol),{price:close,previousClose:prevClose,change,changePercent,exchange,date:marketDateISO(fileDate),time:marketDateISO(fileDate),source:exchange+' official historical equity bhavcopy',error:false});
+        matched++;
+      }
+      if(!fileDate)throw new Error('No valid trading date found in this CSV.');
+      const age=marketDateAge(fileDate);
+      if(age<30)throw new Error('This file is '+age+' days old. Public investor-education use requires a minimum 30-day lag. Choose an older trading-date file.');
+      if(!matched)throw new Error('No Nifty 50 constituents matched. Select a cash-market equity (CM) bhavcopy, not a derivatives file.');
+      return {quotes,date:marketDateISO(fileDate),count:matched,exchange,type:'equity'};
+    }
+    function importIndexCsv(text,exchange){
+      const rows=csvRows(text);if(rows.length<2)throw new Error('The index CSV appears to be empty.');
+      const headers=rows[0],dateCol=csvColumn(headers,['Index Date','HistoricalDate','Date','DATE','Trading Date','TIMESTAMP']);
+      const nameCol=csvColumn(headers,['Index Name','IndexName','Index']),closeCol=csvColumn(headers,['Closing Index Value','Close','CLOSE','Closing Value','ClosingIndexValue']);
+      const prevCol=csvColumn(headers,['Previous Closing Index Value','Previous Close','Prev Close','PREVCLOSE']);
+      const changeCol=csvColumn(headers,['Points Change','Change','PointsChange']),pctCol=csvColumn(headers,['Change (%)','Change(%)','% Change','Percentage Change','Percent Change']);
+      if(dateCol<0||nameCol<0||closeCol<0)throw new Error('Index CSV columns not recognised. Expected date, index name and closing index value.');
+      let fileDate=null;const quotes=new Map();
+      for(let i=1;i<rows.length;i++){
+        const r=rows[i],d=parseMarketDate(r[dateCol]);if(!d)continue;
+        if(!fileDate)fileDate=d;
+        if(marketDateISO(d)!==marketDateISO(fileDate))throw new Error('Please import one index trading date per CSV file.');
+        const name=csvNorm(r[nameCol]),isNifty=name.includes('nifty50')||name==='nifty',isSensex=name.includes('sensex');
+        if((exchange==='NSE'&&!isNifty)||(exchange==='BSE'&&!isSensex))continue;
+        const close=csvPrice(r[closeCol]);if(!close)continue;
+        let previous=prevCol>=0?csvPrice(r[prevCol]):null;
+        const pointChange=changeCol>=0?Number(String(r[changeCol]||'').replace(/,/g,'').trim()):NaN;
+        if(previous===null&&Number.isFinite(pointChange))previous=close-pointChange;
+        const change=previous!==null?close-previous:(Number.isFinite(pointChange)?pointChange:null);
+        let changePercent=previous?change/previous*100:null;
+        if(changePercent===null&&pctCol>=0){const pc=Number(String(r[pctCol]||'').replace(/[% ,]/g,'').trim());if(Number.isFinite(pc))changePercent=pc;}
+        const symbol=exchange==='NSE'?'^NSEI':'^BSESN';
+        quotes.set(indexQuoteKey(symbol),{price:close,previousClose:previous,change,changePercent,exchange,date:marketDateISO(fileDate),time:marketDateISO(fileDate),source:exchange+' official historical index CSV',error:false});
+      }
+      if(!fileDate)throw new Error('No valid index trading date found.');
+      const age=marketDateAge(fileDate);
+      if(age<30)throw new Error('This file is '+age+' days old. Public investor-education use requires a minimum 30-day lag. Choose an older trading-date file.');
+      if(!quotes.size)throw new Error(exchange==='NSE'?'No NIFTY 50 row found in this CSV.':'No SENSEX row found in this CSV.');
+      return {quotes,date:marketDateISO(fileDate),count:quotes.size,exchange,type:'index'};
+    }
+    function updateMarketIndexDisplays(){
+      const indexes=[
+        {quote:quoteCache.get(indexQuoteKey('^NSEI')),ids:{value:'niftyValue',move:'niftyMove',time:'niftyTimestamp',homeValue:'homeNiftyValue',homeMove:'homeNiftyMove',homeTime:'homeNiftyTime'}},
+        {quote:quoteCache.get(indexQuoteKey('^BSESN')),ids:{value:'sensexValue',move:'sensexMove',time:'sensexTimestamp',homeValue:'homeSensexValue',homeMove:'homeSensexMove',homeTime:'homeSensexTime'}}
       ];
-      indexes.forEach(({quote,ids}) => {
-        const available = quote && !quote.error && Number.isFinite(quote.price);
-        const value = available ? formatIndex(quote.price) : '—';
-        const move = available ? `${quote.change >= 0 ? '+' : '−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%) today` : 'Index quote unavailable';
-        animateMarketNumber($(ids.value), available ? quote.price : NaN, formatIndex, 'index:' + ids.value);
-        if ($(ids.move)) { $(ids.move).textContent = move; $(ids.move).className = 'index-move ' + (available ? (quote.change >= 0 ? 'quote-up' : 'quote-down') : 'muted'); }
-        if ($(ids.time)) $(ids.time).textContent = available ? 'As of ' + (quote.time || 'latest available') : 'Waiting for quote';
-        animateMarketNumber($(ids.homeValue), available ? quote.price : NaN, formatIndex, 'index:' + ids.homeValue);
-        if ($(ids.homeMove)) { $(ids.homeMove).textContent = move; $(ids.homeMove).className = 'index-move ' + (available ? (quote.change >= 0 ? 'quote-up' : 'quote-down') : 'muted'); }
-        if ($(ids.homeTime)) $(ids.homeTime).textContent = available ? 'As of ' + (quote.time || 'latest available') : 'No quote available yet';
+      indexes.forEach(({quote,ids})=>{
+        const available=quote&&!quote.error&&Number.isFinite(quote.price),hasMove=available&&Number.isFinite(quote.change)&&Number.isFinite(quote.changePercent);
+        const move=hasMove?\`\${quote.change>=0?'+':'−'}\${formatIndex(Math.abs(quote.change))} pts (\${quote.change>=0?'+':''}\${quote.changePercent.toFixed(2)}%) on \${quote.date}\`:'Import an official index-history CSV';
+        animateMarketNumber($(ids.value),available?quote.price:NaN,formatIndex,'index:'+ids.value);
+        if($(ids.move)){$(ids.move).textContent=move;$(ids.move).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
+        if($(ids.time))$(ids.time).textContent=available?'Historical close · '+quote.exchange+' · '+quote.date:'No index CSV imported';
+        animateMarketNumber($(ids.homeValue),available?quote.price:NaN,formatIndex,'index:'+ids.homeValue);
+        if($(ids.homeMove)){$(ids.homeMove).textContent=move;$(ids.homeMove).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
+        if($(ids.homeTime))$(ids.homeTime).textContent=available?'Historical close · '+quote.date:'No index CSV imported';
       });
     }
-    async function refreshQuotes({silent=false}={}) {
-      if (quoteFetchRunning) return;
-      quoteFetchRunning = true;
-      const button = $('refreshQuotesBtn');
-      if (button) { button.disabled = true; button.textContent = '↻ Loading…'; }
-      const status = $('quoteUpdatedAt');
-      if (status) status.textContent = 'Fetching latest available quotes…';
-      // Fetch in small batches to avoid overwhelming the free quote relay.
-      const items = [{symbol:'^NSEI', yahoo:'^NSEI'}, {symbol:'^BSESN', yahoo:'^BSESN'}, ...companies.map(c => ({symbol:c.symbol, yahoo:quoteSymbol(c.symbol)}))];
-      let loaded = 0;
-      for (let i=0; i<items.length; i+=8) {
-        const batch = items.slice(i, i+8);
-        await Promise.all(batch.map(async item => {
-          try { quoteCache.set(item.symbol, await fetchOneQuote(item.yahoo)); }
-          catch (error) { quoteCache.set(item.symbol, {error:true, reason:error.message}); }
-          loaded++;
-        }));
-        renderCompanies();
-        renderTopMovers();
-        renderWatchlist();
-        renderPortfolio();
-        updateWalletDisplays();
-        updateMarketIndexDisplays();
-      }
-      quoteLastUpdated = new Date();
-      const successCount = [...quoteCache.values()].filter(q => q && !q.error && Number.isFinite(q.price)).length;
-      if (status) status.textContent = `Received ${successCount} of ${loaded} quotes at ${quoteLastUpdated.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}. See each company's quote timestamp.`;
-      if (button) { button.disabled = false; button.textContent = '↻ Refresh quotes'; }
-      quoteFetchRunning = false;
-      const successes = [...quoteCache.values()].filter(q => q && !q.error && Number.isFinite(q.price)).length;
-      if (!silent) showToast(successes ? `${successes} actual market quotes loaded. Vendor data may be delayed.` : 'Quotes could not be loaded. Check internet access and retry.');
+    function refreshQuotes({silent=false}={}){
+      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();updateWalletDisplays();updateMarketIndexDisplays();
+      const loaded=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
+      const status=$('quoteUpdatedAt');
+      if(status)status.textContent=loaded?'Loaded '+loaded+' imported historical quote records. See each card for its exchange and data date.':'No imported historical price records yet.';
+      if(!silent&&!loaded)showToast('No live feed is connected. Import an official historical CSV (30+ days old) to load actual closing prices.');
+    }
+    async function handleMarketCsv(file){
+      if(!file)return;
+      const exchange=$('marketDataExchange').value,type=$('marketDataType').value,status=$('marketCsvStatus');
+      status.textContent='Reading '+file.name+'…';status.style.color='#aab6cb';
+      try{
+        const text=await file.text(),result=type==='index'?importIndexCsv(text,exchange):importEquityCsv(text,exchange);
+        if(type==='equity')for(const key of [...quoteCache.keys()])if(key.startsWith(exchange+':'))quoteCache.delete(key);
+        for(const [key,quote] of result.quotes)quoteCache.set(key,quote);
+        accountData.marketDataMeta[exchange+(type==='index'?'Index':'Equity')]=result.date;
+        saveUserData();selectedMarketExchange=exchange;$('marketDataExchange').value=exchange;
+        refreshQuotes({silent:true});
+        status.textContent='Imported '+result.count+' '+(type==='index'?'index record(s)':'Nifty 50 share close(s)')+' from '+exchange+' for '+result.date+'.';
+        status.style.color='#5ce0ae';$('quoteUpdatedAt').textContent=status.textContent;$('moversUpdatedAt').textContent='Ranked using '+exchange+' historical closes dated '+result.date+'.';
+        showToast(status.textContent);
+      }catch(error){status.textContent=error.message||'Could not import this CSV file.';status.style.color='#ff9aa8';showToast(status.textContent);}
+      finally{$('marketCsvFile').value='';}
     }
     function portfolioKey(exchange,symbol) { return exchange + ':' + symbol.toUpperCase(); }
     function calculatePortfolio() {
@@ -558,8 +598,11 @@
         const cost = p.lots.reduce((n,l) => n+l.quantity*l.unitCost,0);
         const avg = quantity ? cost/quantity : 0;
         const current = Number(accountData.prices[portfolioKey(p.exchange,p.symbol)]);
-        const marketPrice = Number.isFinite(current) && current > 0 ? current : avg;
-        return {...p,quantity,cost,averageCost:avg,marketPrice,marketValue:quantity*marketPrice,unrealized:quantity*(marketPrice-avg),hasManualPrice:Number.isFinite(current)&&current>0};
+        const importedQuote = quoteCache.get(marketQuoteKey(p.exchange,p.symbol));
+        const hasImportedPrice = !!(importedQuote && !importedQuote.error && Number.isFinite(importedQuote.price) && importedQuote.price > 0);
+        const hasManualPrice = Number.isFinite(current) && current > 0;
+        const marketPrice = hasImportedPrice ? importedQuote.price : (hasManualPrice ? current : avg);
+        return {...p,quantity,cost,averageCost:avg,marketPrice,marketValue:quantity*marketPrice,unrealized:quantity*(marketPrice-avg),hasManualPrice,hasImportedPrice,priceDate:hasImportedPrice?importedQuote.date:null};
       }).filter(p => p.quantity > 0.0000001);
       return {rows,realized,dividends,totalRealized:realized+dividends};
     }
@@ -590,7 +633,7 @@
         $('portfolioHoldings').innerHTML='<table><thead><tr><th>Company / Symbol</th><th>Exchange</th><th>Quantity</th><th>Avg. cost</th><th>Current price (₹)</th><th>Market value</th><th>Unrealized P/L</th></tr></thead><tbody>'+
           summary.rows.map(p=>{
             const company=companies.find(c=>c.symbol===p.symbol);
-            return '<tr><td><strong>'+escapeHtml(company?company.name:p.symbol)+'</strong><br><small class="muted">'+escapeHtml(p.symbol)+'</small></td><td><span class="tag">'+escapeHtml(p.exchange)+'</span></td><td>'+p.quantity+'</td><td>'+formatINR(p.averageCost)+'</td><td><input class="price-edit" type="number" min="0.01" step="0.01" placeholder="'+p.averageCost.toFixed(2)+'" value="'+(p.hasManualPrice?p.marketPrice:'')+'" data-price-key="'+escapeHtml(portfolioKey(p.exchange,p.symbol))+'" aria-label="Current price for '+escapeHtml(p.symbol)+' on '+escapeHtml(p.exchange)+'"></td><td>'+formatINR(p.marketValue)+'</td><td class="'+(p.unrealized>=0?'pnl-positive':'pnl-negative')+'">'+(p.unrealized>0?'+':'')+formatINR(p.unrealized)+'</td></tr>';
+            return '<tr><td><strong>'+escapeHtml(company?company.name:p.symbol)+'</strong><br><small class="muted">'+escapeHtml(p.symbol)+'</small></td><td><span class="tag">'+escapeHtml(p.exchange)+'</span></td><td>'+p.quantity+'</td><td>'+formatINR(p.averageCost)+'</td><td>'+(p.hasImportedPrice?'<strong>'+formatINR(p.marketPrice)+'</strong><br><small class="muted">CSV close · '+escapeHtml(p.priceDate)+'</small>':'<input class="price-edit" type="number" min="0.01" step="0.01" placeholder="'+p.averageCost.toFixed(2)+'" value="'+(p.hasManualPrice?p.marketPrice:'')+'" data-price-key="'+escapeHtml(portfolioKey(p.exchange,p.symbol))+'" aria-label="Manual current price for '+escapeHtml(p.symbol)+' on '+escapeHtml(p.exchange)+'">')+'</td><td>'+formatINR(p.marketValue)+'</td><td class="'+(p.unrealized>=0?'pnl-positive':'pnl-negative')+'">'+(p.unrealized>0?'+':'')+formatINR(p.unrealized)+'</td></tr>';
           }).join('')+'</tbody></table>';
       }
       const txs=[...accountData.transactions].sort((a,b)=>String(b.date).localeCompare(String(a.date))||Number(b.createdAt||0)-Number(a.createdAt||0));
@@ -734,7 +777,9 @@
     });
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
-    $('refreshQuotesBtn').addEventListener('click', () => refreshQuotes());
+    $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;renderCompanies();renderTopMovers();renderWatchlist();});
+    $('refreshQuotesBtn').addEventListener('click',()=>$('marketCsvFile').click());
+    $('marketCsvFile').addEventListener('change',event=>handleMarketCsv(event.target.files[0]));
     document.querySelectorAll('[data-mover-direction]').forEach(button => {
       button.addEventListener('click', () => {
         moversDirection = button.dataset.moverDirection;
@@ -742,7 +787,7 @@
       });
     });
     $('moversLimit').addEventListener('change', renderTopMovers);
-    $('refreshMoversBtn').addEventListener('click', () => refreshQuotes());
+    $('refreshMoversBtn').addEventListener('click', () => $('marketCsvFile').click());
 
     // Firebase Authentication needs an HTTP(S) origin. Opening this HTML
     // directly as file:// prevents Firebase sign-in from working.
@@ -834,8 +879,7 @@
 
     $('retrySdkBtn').addEventListener('click', initializeFirebase);
     initializeFirebase();
-    // Refresh quotes periodically while the tab remains open; Yahoo's chart feed is unofficial and can be delayed.
-    setInterval(() => { if (currentUser && !document.hidden) refreshQuotes({silent:true}); }, 5 * 60 * 1000);
+    // No background market polling: refreshes are based only on official historical CSVs imported by the user.
     // Register the PWA service worker when FinSim is served from GitHub Pages or another HTTPS host.
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
       window.addEventListener('load', () => {
