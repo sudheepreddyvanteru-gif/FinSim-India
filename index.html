@@ -84,7 +84,7 @@
         <div class="panel"><div class="panel-head"><h3>Getting started</h3><small>YOUR NEXT STEPS</small></div><div class="setting-row"><div><strong>Explore listed companies</strong><small>Browse NSE and BSE share prices with official historical closing values and daily movements.</small></div><button class="btn btn-primary" data-goto="markets" type="button">Open markets</button></div><div class="setting-row"><div><strong>Load official exchange prices</strong><small>Import official historical exchange CSV data (minimum 30-day lag for public investor-education use).</small></div></div></div>
       </section>
       <section class="page" id="page-markets">
-        <div class="page-intro"><div><h2>Indian markets &amp; Nifty 50 companies</h2><p>Track the NSE Nifty 50 and BSE Sensex index, then browse Nifty 50 constituents with imported historical share closing prices.</p></div><span class="tag">NSE + BSE INDICES</span></div>
+        <div class="page-intro"><div><h2>Indian markets &amp; Nifty 50 companies</h2><p>Switch between automatically moving simulated prices and actual historical NSE/BSE closing prices for the Nifty 50, NIFTY 50 index and SENSEX.</p></div><span class="tag">NSE + BSE INDICES</span></div>
         <div class="market-index-grid"><div class="market-index"><div><div class="index-label">NIFTY 50 · NSE index</div><strong id="niftyValue">—</strong><div id="niftyMove" class="index-move muted">Import an index-history CSV</div></div><div class="index-meta"><div id="niftyTimestamp">No index CSV imported</div><div>INR · Index points</div></div></div><div class="market-index"><div><div class="index-label">SENSEX · BSE index</div><strong id="sensexValue">—</strong><div id="sensexMove" class="index-move muted">Import an index-history CSV</div></div><div class="index-meta"><div id="sensexTimestamp">No index CSV imported</div><div>INR · Index points</div></div></div></div>
         <div class="market-bar">
           <input class="search" id="marketSearch" placeholder="Search company or NSE symbol…" aria-label="Search companies">
@@ -94,6 +94,14 @@
           <button class="btn btn-primary" id="loadDelayedQuotesBtn" type="button">↻ Refresh delayed quotes</button>
           <button class="btn" id="refreshQuotesBtn" type="button">⇧ Import CSV</button>
           <input id="marketCsvFile" type="file" accept=".csv,text/csv" hidden>
+        </div>
+        <div class="notice" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px">
+          <div><strong>Price display mode</strong><br><small class="muted">Switch between moving practice prices and official historical exchange prices.</small></div>
+          <div class="mover-switches" role="group" aria-label="Market price display mode">
+            <button class="btn mover-switch active" id="simulationModeBtn" type="button" aria-pressed="true">↗ Simulation · moving</button>
+            <button class="btn mover-switch" id="officialModeBtn" type="button" aria-pressed="false">Official data · delayed</button>
+          </div>
+          <span id="marketModeStatus" style="font-weight:800;color:#f0c66b">SIMULATION · synthetic prices update every 2 seconds</span>
         </div>
         <div class="notice" style="margin:0 0 14px">
           <strong>Official historical exchange closing prices — never live.</strong> When the automatic data feed is authorised and enabled, FinSim loads NSE/BSE shares, NIFTY 50 and SENSEX with a minimum 31-calendar-day lag. It refreshes from official historical reports. You can also import a 30+ day old official CSV manually; that file stays in this browser.
@@ -107,7 +115,7 @@
       </section>
       <section class="page" id="page-movers">
         <div class="page-intro">
-          <div><h2>Top Gainers &amp; Losers</h2><p>See which Nifty 50 shares have moved up or down the most on the imported historical trading date.</p></div>
+          <div><h2>Top Gainers &amp; Losers</h2><p>See the biggest movers using either simulated price movement or official historical daily changes.</p></div>
           <span class="tag">NIFTY 50 · DAILY MOVES</span>
         </div>
         <div class="panel" style="margin-bottom:14px">
@@ -127,9 +135,9 @@
           <div class="table-wrap" id="moversTable" aria-live="polite">
             <div class="holding-empty">Loading available market quotes…</div>
           </div>
-          <div class="market-footer"><span id="moversUpdatedAt">Waiting for imported historical quotes…</span><span>Sorted by imported historical percentage change</span></div>
+          <div class="market-footer"><span id="moversUpdatedAt">Waiting for market prices…</span><span>Sorted by selected mode's percentage change</span></div>
         </div>
-        <div class="notice">This ranking covers the Nifty 50 companies listed in FinSim India, not every NSE or BSE share. Rankings use the daily change shown in your imported historical exchange CSV; no live or estimated prices are generated.</div>
+        <div class="notice">This ranking covers the Nifty 50 companies listed in FinSim India, not every NSE or BSE share. Simulation prices are fictional and move automatically; official exchange prices are historical and delayed by at least 30 days.</div>
       </section>
       <section class="page" id="page-watchlist">
         <div class="page-intro"><div><h2>Your watchlist</h2><p>Track companies you want to follow. Your watchlist is saved in this browser for this account.</p></div></div>
@@ -249,6 +257,8 @@
     let accountData = {watchlist:[],transactions:[],prices:{},marketQuotes:{},marketDataMeta:{}};
     let toastTimer;
     const quoteCache = new Map();
+    const simulationQuotes = new Map();
+    let marketDisplayMode = 'simulation';
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
     let selectedMarketExchange = 'NSE';
@@ -257,6 +267,79 @@
     let pendingGithubCredential = null;
     let pendingGithubEmail = null;
 
+    function simulatedSeed(symbol,exchange){
+      let hash=exchange==='NSE'?23:71;
+      for(const char of String(symbol))hash=(hash*31+char.charCodeAt(0))%1000003;
+      return 120+(hash%7800);
+    }
+    function seedSimulationQuotes(){
+      simulationQuotes.clear();
+      companies.forEach(company=>{
+        ['NSE','BSE'].forEach(exchange=>{
+          const open=simulatedSeed(company.symbol,exchange);
+          const key=marketQuoteKey(exchange,company.symbol);
+          simulationQuotes.set(key,{
+            price:open,previousClose:open,change:0,changePercent:0,
+            exchange,date:'SIMULATED',time:new Date().toISOString(),
+            source:'FinSim generated simulation',simulated:true,error:false
+          });
+        });
+      });
+      [['^NSEI','NSE',25100],['^BSESN','BSE',82400]].forEach(([symbol,exchange,open])=>{
+        simulationQuotes.set(indexQuoteKey(symbol),{
+          price:open,previousClose:open,change:0,changePercent:0,
+          exchange,date:'SIMULATED',time:new Date().toISOString(),
+          source:'FinSim generated simulation',simulated:true,error:false
+        });
+      });
+    }
+    function getDisplayQuote(exchange,symbol){
+      const key=marketQuoteKey(exchange,symbol);
+      return marketDisplayMode==='simulation'?(simulationQuotes.get(key)||null):(quoteCache.get(key)||null);
+    }
+    function getDisplayIndexQuote(symbol){
+      const key=indexQuoteKey(symbol);
+      return marketDisplayMode==='simulation'?(simulationQuotes.get(key)||null):(quoteCache.get(key)||null);
+    }
+    function tickSimulationQuotes(){
+      const now=new Date().toISOString();
+      simulationQuotes.forEach(quote=>{
+        const volatility=quote.symbol&&quote.type==='index'?0.00075:0.0024;
+        const drift=(Math.random()-0.49)*volatility*2;
+        quote.price=Math.max(0.05,quote.price*(1+drift));
+        quote.change=quote.price-quote.previousClose;
+        quote.changePercent=quote.previousClose?quote.change/quote.previousClose*100:0;
+        quote.time=now;
+      });
+    }
+    function setMarketDisplayMode(mode){
+      marketDisplayMode=mode==='official'?'official':'simulation';
+      const simulated=marketDisplayMode==='simulation';
+      $('simulationModeBtn').classList.toggle('active',simulated);
+      $('officialModeBtn').classList.toggle('active',!simulated);
+      $('simulationModeBtn').setAttribute('aria-pressed',String(simulated));
+      $('officialModeBtn').setAttribute('aria-pressed',String(!simulated));
+      const status=$('marketModeStatus');
+      if(status){
+        status.textContent=simulated
+          ?'SIMULATION · fictional prices move every 2 seconds'
+          :'OFFICIAL DATA · historical exchange closes (30+ day delay)';
+        status.style.color=simulated?'#f0c66b':'#78c7ff';
+      }
+      refreshMarketViews();
+      if(!simulated)loadDelayedMarketQuotes({silent:true});
+    }
+    function refreshMarketViews(){
+      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();
+      updateWalletDisplays();updateMarketIndexDisplays();
+      const status=$('quoteUpdatedAt');
+      if(status&&marketDisplayMode==='simulation')status.textContent='Simulation mode · fictional share prices are moving automatically.';
+      if(status&&marketDisplayMode==='official'){
+        const count=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
+        status.textContent=count?'Official historical quotes loaded · see each quote for its data date.':'No official prices loaded yet · import an eligible historical NSE/BSE CSV.';
+      }
+    }
+    seedSimulationQuotes();
     function setAuthMessage(message, type='') {
       const el = $('authMessage'); el.textContent = message || ''; el.className = 'auth-message' + (type ? ' ' + type : '');
     }
@@ -393,15 +476,19 @@
     function moveMarkup(quote) {
       if (!quote || !Number.isFinite(quote.change) || !Number.isFinite(quote.changePercent)) return '<span class="day-move quote-unavailable">Historical day move —</span>';
       const positive = quote.change >= 0, klass = positive ? 'quote-up' : 'quote-down', sign = positive ? '+' : '−';
-      return `<span class="day-move ${klass}">${sign}${formatINR(Math.abs(quote.change))} (${positive?'+':''}${quote.changePercent.toFixed(2)}%) on ${escapeHtml(quote.date || 'imported date')}</span>`;
+      return quote.simulated
+        ? `<span class="day-move ${klass}">${sign}${formatINR(Math.abs(quote.change))} (${positive?'+':''}${quote.changePercent.toFixed(2)}%) · simulated</span>`
+        : `<span class="day-move ${klass}">${sign}${formatINR(Math.abs(quote.change))} (${positive?'+':''}${quote.changePercent.toFixed(2)}%) on ${escapeHtml(quote.date || 'imported date')}</span>`;
     }
     function companyCard(company) {
       const watched = accountData.watchlist.includes(company.symbol);
-      const quote = quoteCache.get(marketQuoteKey(selectedMarketExchange,company.symbol));
+      const quote = getDisplayQuote(selectedMarketExchange,company.symbol);
       const price = quote && Number.isFinite(quote.price) ? formatINR(quote.price) : '—';
-      const state = quote
-        ? `<small>${escapeHtml(quote.exchange)} bhavcopy · close dated ${escapeHtml(quote.date || 'unknown')}</small>`
-        : `<small class="quote-unavailable">No ${selectedMarketExchange} CSV loaded for this share</small>`;
+      const state = quote && quote.simulated
+        ? `<small class="quote-unavailable">SIMULATED · changing automatically</small>`
+        : quote
+          ? `<small>${escapeHtml(quote.exchange)} historical close · ${escapeHtml(quote.date || 'unknown')}</small>`
+          : `<small class="quote-unavailable">No official ${selectedMarketExchange} data loaded</small>`;
       return `<article class="company-card"><div class="company-mark">${escapeHtml(company.symbol.slice(0,2))}</div><div class="company-meta"><strong title="${escapeHtml(company.name)}">${escapeHtml(company.name)}</strong><small>${escapeHtml(company.symbol)} · ${escapeHtml(company.sector)}</small>${state}</div><div class="company-quote"><strong class="market-number" data-market-symbol="${escapeHtml(company.symbol)}">${price}</strong>${moveMarkup(quote)}</div><button class="watch-btn ${watched?'on':''}" type="button" data-watch="${escapeHtml(company.symbol)}" aria-label="${watched?'Remove from':'Add to'} watchlist">${watched?'★':'☆'}</button></article>`;
     }
     function renderCompanies() {
@@ -411,7 +498,7 @@
       $('companyList').innerHTML = matches.length ? matches.map(companyCard).join('') : '<div class="empty-state"><div><div class="empty-icon">⌕</div><strong>No companies found</strong><p>Try another company name, symbol or sector.</p></div></div>';
       $('companyList').querySelectorAll('[data-market-symbol]').forEach(element => {
         const symbol = element.dataset.marketSymbol;
-        const quote = quoteCache.get(marketQuoteKey(selectedMarketExchange,symbol));
+        const quote = getDisplayQuote(selectedMarketExchange,symbol);
         animateMarketNumber(element, quote && !quote.error ? quote.price : NaN, formatINR, 'company:' + selectedMarketExchange + ':' + symbol);
       });
     }
@@ -421,12 +508,12 @@
       const gainersButton = $('showGainersBtn'), losersButton = $('showLosersBtn');
       if (gainersButton) { gainersButton.classList.toggle('active',moversDirection==='gainers'); gainersButton.setAttribute('aria-pressed',String(moversDirection==='gainers')); }
       if (losersButton) { losersButton.classList.toggle('active',moversDirection==='losers'); losersButton.setAttribute('aria-pressed',String(moversDirection==='losers')); }
-      const available = companies.map(company => ({company,quote:quoteCache.get(marketQuoteKey(selectedMarketExchange,company.symbol))}))
+      const available = companies.map(company => ({company,quote:getDisplayQuote(selectedMarketExchange,company.symbol)}))
         .filter(item=>item.quote&&!item.quote.error&&Number.isFinite(item.quote.price)&&Number.isFinite(item.quote.change)&&Number.isFinite(item.quote.changePercent));
       available.sort((a,b)=>moversDirection==='gainers'?b.quote.changePercent-a.quote.changePercent:a.quote.changePercent-b.quote.changePercent);
       const limit=Number($('moversLimit')?.value||10),ranked=available.slice(0,limit);
       if(!ranked.length){
-        container.innerHTML='<div class="holding-empty">No imported '+selectedMarketExchange+' historical share prices yet. Open Markets and import an official equity bhavcopy CSV.</div>';
+        container.innerHTML='<div class="holding-empty">'+(marketDisplayMode==='simulation'?'Simulation prices are being prepared.':'No official '+selectedMarketExchange+' historical share prices loaded. Import an eligible official equity bhavcopy CSV.')+'</div>';
       } else {
         container.innerHTML='<table><thead><tr><th>#</th><th>Company</th><th>Symbol</th><th>Sector</th><th>Close price</th><th>Change (₹)</th><th>Change (%)</th><th>Data date</th></tr></thead><tbody>'+
           ranked.map(({company,quote},index)=>{
@@ -435,7 +522,7 @@
           }).join('')+'</tbody></table>';
       }
       const status=$('moversUpdatedAt');
-      if(status)status.textContent=available.length?'Showing '+ranked.length+' of '+available.length+' '+selectedMarketExchange+' shares from imported historical data.':'Waiting for an official equity CSV import.';
+      if(status)status.textContent=available.length?'Showing '+ranked.length+' of '+available.length+' '+selectedMarketExchange+' shares · '+(marketDisplayMode==='simulation'?'fictional moving simulation':'official historical prices')+'.':'Waiting for market prices.';
     }
     function csvRows(text) {
       const rows=[];let row=[],field='',quoted=false;
@@ -536,26 +623,28 @@
     }
     function updateMarketIndexDisplays(){
       const indexes=[
-        {quote:quoteCache.get(indexQuoteKey('^NSEI')),ids:{value:'niftyValue',move:'niftyMove',time:'niftyTimestamp',homeValue:'homeNiftyValue',homeMove:'homeNiftyMove',homeTime:'homeNiftyTime'}},
-        {quote:quoteCache.get(indexQuoteKey('^BSESN')),ids:{value:'sensexValue',move:'sensexMove',time:'sensexTimestamp',homeValue:'homeSensexValue',homeMove:'homeSensexMove',homeTime:'homeSensexTime'}}
+        {quote:getDisplayIndexQuote('^NSEI'),ids:{value:'niftyValue',move:'niftyMove',time:'niftyTimestamp',homeValue:'homeNiftyValue',homeMove:'homeNiftyMove',homeTime:'homeNiftyTime'}},
+        {quote:getDisplayIndexQuote('^BSESN'),ids:{value:'sensexValue',move:'sensexMove',time:'sensexTimestamp',homeValue:'homeSensexValue',homeMove:'homeSensexMove',homeTime:'homeSensexTime'}}
       ];
       indexes.forEach(({quote,ids})=>{
         const available=quote&&!quote.error&&Number.isFinite(quote.price),hasMove=available&&Number.isFinite(quote.change)&&Number.isFinite(quote.changePercent);
         const move=hasMove?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`:'Import an official index-history CSV';
         animateMarketNumber($(ids.value),available?quote.price:NaN,formatIndex,'index:'+ids.value);
         if($(ids.move)){$(ids.move).textContent=move;$(ids.move).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
-        if($(ids.time))$(ids.time).textContent=available?'Historical close · '+quote.exchange+' · '+quote.date:'No index CSV imported';
+        if($(ids.time))$(ids.time).textContent=available?(quote.simulated?'SIMULATION · fictional moving value':'Historical close · '+quote.exchange+' · '+quote.date):'No official index data loaded';
         animateMarketNumber($(ids.homeValue),available?quote.price:NaN,formatIndex,'index:'+ids.homeValue);
         if($(ids.homeMove)){$(ids.homeMove).textContent=move;$(ids.homeMove).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
-        if($(ids.homeTime))$(ids.homeTime).textContent=available?'Historical close · '+quote.date:'No index CSV imported';
+        if($(ids.homeTime))$(ids.homeTime).textContent=available?(quote.simulated?'SIMULATION · fictional moving value':'Historical close · '+quote.date):'No official index data loaded';
       });
     }
     function refreshQuotes({silent=false}={}){
       renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();updateWalletDisplays();updateMarketIndexDisplays();
       const loaded=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
       const status=$('quoteUpdatedAt');
-      if(status)status.textContent=loaded?'Loaded '+loaded+' imported historical quote records. See each card for its exchange and data date.':'No imported historical price records yet.';
-      if(!silent&&!loaded)showToast('No live feed is connected. Import an official historical CSV (30+ days old) to load actual closing prices.');
+      if(status)status.textContent=marketDisplayMode==='simulation'
+        ?'Simulation mode · fictional prices move automatically every 2 seconds.'
+        :(loaded?'Loaded '+loaded+' official historical quote records. See each card for its exchange and data date.':'No official historical prices imported yet.');
+      if(!silent&&!loaded&&marketDisplayMode==='official')showToast('No official exchange prices loaded. Import an eligible historical CSV (30+ days old).');
     }
     async function loadDelayedMarketQuotes({silent=false}={}){
       const status=$('delayedFeedStatus');
@@ -647,11 +736,13 @@
         const cost = p.lots.reduce((n,l) => n+l.quantity*l.unitCost,0);
         const avg = quantity ? cost/quantity : 0;
         const current = Number(accountData.prices[portfolioKey(p.exchange,p.symbol)]);
-        const importedQuote = quoteCache.get(marketQuoteKey(p.exchange,p.symbol));
-        const hasImportedPrice = !!(importedQuote && !importedQuote.error && Number.isFinite(importedQuote.price) && importedQuote.price > 0);
+        const displayQuote = getDisplayQuote(p.exchange,p.symbol);
+        const hasImportedPrice = !!(displayQuote && !displayQuote.simulated && !displayQuote.error && Number.isFinite(displayQuote.price) && displayQuote.price > 0);
+        const hasSimulationPrice = !!(displayQuote && displayQuote.simulated && Number.isFinite(displayQuote.price) && displayQuote.price > 0);
         const hasManualPrice = Number.isFinite(current) && current > 0;
-        const marketPrice = hasImportedPrice ? importedQuote.price : (hasManualPrice ? current : avg);
-        return {...p,quantity,cost,averageCost:avg,marketPrice,marketValue:quantity*marketPrice,unrealized:quantity*(marketPrice-avg),hasManualPrice,hasImportedPrice,priceDate:hasImportedPrice?importedQuote.date:null};
+        const hasMarketPrice = hasImportedPrice || hasSimulationPrice;
+        const marketPrice = hasMarketPrice ? displayQuote.price : (hasManualPrice ? current : avg);
+        return {...p,quantity,cost,averageCost:avg,marketPrice,marketValue:quantity*marketPrice,unrealized:quantity*(marketPrice-avg),hasManualPrice,hasImportedPrice,hasSimulationPrice,priceDate:hasImportedPrice?displayQuote.date:null};
       }).filter(p => p.quantity > 0.0000001);
       return {rows,realized,dividends,totalRealized:realized+dividends};
     }
@@ -682,7 +773,7 @@
         $('portfolioHoldings').innerHTML='<table><thead><tr><th>Company / Symbol</th><th>Exchange</th><th>Quantity</th><th>Avg. cost</th><th>Current price (₹)</th><th>Market value</th><th>Unrealized P/L</th></tr></thead><tbody>'+
           summary.rows.map(p=>{
             const company=companies.find(c=>c.symbol===p.symbol);
-            return '<tr><td><strong>'+escapeHtml(company?company.name:p.symbol)+'</strong><br><small class="muted">'+escapeHtml(p.symbol)+'</small></td><td><span class="tag">'+escapeHtml(p.exchange)+'</span></td><td>'+p.quantity+'</td><td>'+formatINR(p.averageCost)+'</td><td>'+(p.hasImportedPrice?'<strong>'+formatINR(p.marketPrice)+'</strong><br><small class="muted">CSV close · '+escapeHtml(p.priceDate)+'</small>':'<input class="price-edit" type="number" min="0.01" step="0.01" placeholder="'+p.averageCost.toFixed(2)+'" value="'+(p.hasManualPrice?p.marketPrice:'')+'" data-price-key="'+escapeHtml(portfolioKey(p.exchange,p.symbol))+'" aria-label="Manual current price for '+escapeHtml(p.symbol)+' on '+escapeHtml(p.exchange)+'">')+'</td><td>'+formatINR(p.marketValue)+'</td><td class="'+(p.unrealized>=0?'pnl-positive':'pnl-negative')+'">'+(p.unrealized>0?'+':'')+formatINR(p.unrealized)+'</td></tr>';
+            return '<tr><td><strong>'+escapeHtml(company?company.name:p.symbol)+'</strong><br><small class="muted">'+escapeHtml(p.symbol)+'</small></td><td><span class="tag">'+escapeHtml(p.exchange)+'</span></td><td>'+p.quantity+'</td><td>'+formatINR(p.averageCost)+'</td><td>'+(p.hasImportedPrice?'<strong>'+formatINR(p.marketPrice)+'</strong><br><small class="muted">Official historical close · '+escapeHtml(p.priceDate)+'</small>':(p.hasSimulationPrice?'<strong>'+formatINR(p.marketPrice)+'</strong><br><small class="muted">SIMULATED · moving price</small>':'<input class="price-edit" type="number" min="0.01" step="0.01" placeholder="'+p.averageCost.toFixed(2)+'" value="'+(p.hasManualPrice?p.marketPrice:'')+'" data-price-key="'+escapeHtml(portfolioKey(p.exchange,p.symbol))+'" aria-label="Manual current price for '+escapeHtml(p.symbol)+' on '+escapeHtml(p.exchange)+'">'))+'</td><td>'+formatINR(p.marketValue)+'</td><td class="'+(p.unrealized>=0?'pnl-positive':'pnl-negative')+'">'+(p.unrealized>0?'+':'')+formatINR(p.unrealized)+'</td></tr>';
           }).join('')+'</tbody></table>';
       }
       const txs=[...accountData.transactions].sort((a,b)=>String(b.date).localeCompare(String(a.date))||Number(b.createdAt||0)-Number(a.createdAt||0));
@@ -824,6 +915,8 @@
         saveUserData(); renderCompanies(); renderWatchlist();
       }
     });
+    $('simulationModeBtn').addEventListener('click',()=>setMarketDisplayMode('simulation'));
+    $('officialModeBtn').addEventListener('click',()=>setMarketDisplayMode('official'));
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
     $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;renderCompanies();renderTopMovers();renderWatchlist();});
@@ -832,6 +925,12 @@
     $('marketCsvFile').addEventListener('change',event=>handleMarketCsv(event.target.files[0]));
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser)loadDelayedMarketQuotes({silent:true});});
     setInterval(()=>{if(currentUser)loadDelayedMarketQuotes({silent:true});},6*60*60*1000);
+    setInterval(()=>{
+      if(!currentUser||marketDisplayMode!=='simulation')return;
+      tickSimulationQuotes();
+      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();
+      updateWalletDisplays();updateMarketIndexDisplays();
+    },2000);
     document.querySelectorAll('[data-mover-direction]').forEach(button => {
       button.addEventListener('click', () => {
         moversDirection = button.dataset.moverDirection;
