@@ -390,21 +390,21 @@
     function moveMarkup(quote) {
       if (!quote || !Number.isFinite(quote.change) || !Number.isFinite(quote.changePercent)) return '<span class="day-move quote-unavailable">Historical day move —</span>';
       const positive = quote.change >= 0, klass = positive ? 'quote-up' : 'quote-down', sign = positive ? '+' : '−';
-      return \`<span class="day-move \${klass}">\${sign}\${formatINR(Math.abs(quote.change))} (\${positive?'+':''}\${quote.changePercent.toFixed(2)}%) on \${escapeHtml(quote.date || 'imported date')}</span>\`;
+      return `<span class="day-move ${klass}">${sign}${formatINR(Math.abs(quote.change))} (${positive?'+':''}${quote.changePercent.toFixed(2)}%) on ${escapeHtml(quote.date || 'imported date')}</span>`;
     }
     function companyCard(company) {
       const watched = accountData.watchlist.includes(company.symbol);
       const quote = quoteCache.get(marketQuoteKey(selectedMarketExchange,company.symbol));
       const price = quote && Number.isFinite(quote.price) ? formatINR(quote.price) : '—';
       const state = quote
-        ? \`<small>\${escapeHtml(quote.exchange)} bhavcopy · close dated \${escapeHtml(quote.date || 'unknown')}</small>\`
-        : \`<small class="quote-unavailable">No \${selectedMarketExchange} CSV loaded for this share</small>\`;
-      return \`<article class="company-card"><div class="company-mark">\${escapeHtml(company.symbol.slice(0,2))}</div><div class="company-meta"><strong title="\${escapeHtml(company.name)}">\${escapeHtml(company.name)}</strong><small>\${escapeHtml(company.symbol)} · \${escapeHtml(company.sector)}</small>\${state}</div><div class="company-quote"><strong class="market-number" data-market-symbol="\${escapeHtml(company.symbol)}">\${price}</strong>\${moveMarkup(quote)}</div><button class="watch-btn \${watched?'on':''}" type="button" data-watch="\${escapeHtml(company.symbol)}" aria-label="\${watched?'Remove from':'Add to'} watchlist">\${watched?'★':'☆'}</button></article>\`;
+        ? `<small>${escapeHtml(quote.exchange)} bhavcopy · close dated ${escapeHtml(quote.date || 'unknown')}</small>`
+        : `<small class="quote-unavailable">No ${selectedMarketExchange} CSV loaded for this share</small>`;
+      return `<article class="company-card"><div class="company-mark">${escapeHtml(company.symbol.slice(0,2))}</div><div class="company-meta"><strong title="${escapeHtml(company.name)}">${escapeHtml(company.name)}</strong><small>${escapeHtml(company.symbol)} · ${escapeHtml(company.sector)}</small>${state}</div><div class="company-quote"><strong class="market-number" data-market-symbol="${escapeHtml(company.symbol)}">${price}</strong>${moveMarkup(quote)}</div><button class="watch-btn ${watched?'on':''}" type="button" data-watch="${escapeHtml(company.symbol)}" aria-label="${watched?'Remove from':'Add to'} watchlist">${watched?'★':'☆'}</button></article>`;
     }
     function renderCompanies() {
       const q = ($('marketSearch')?.value || '').trim().toLowerCase();
       const sector = $('sectorFilter')?.value || 'all';
-      const matches = companies.filter(c => (sector === 'all' || sector === c.sector) && \`\${c.name} \${c.symbol} \${c.sector}\`.toLowerCase().includes(q));
+      const matches = companies.filter(c => (sector === 'all' || sector === c.sector) && `${c.name} ${c.symbol} ${c.sector}`.toLowerCase().includes(q));
       $('companyList').innerHTML = matches.length ? matches.map(companyCard).join('') : '<div class="empty-state"><div><div class="empty-icon">⌕</div><strong>No companies found</strong><p>Try another company name, symbol or sector.</p></div></div>';
       $('companyList').querySelectorAll('[data-market-symbol]').forEach(element => {
         const symbol = element.dataset.marketSymbol;
@@ -538,7 +538,7 @@
       ];
       indexes.forEach(({quote,ids})=>{
         const available=quote&&!quote.error&&Number.isFinite(quote.price),hasMove=available&&Number.isFinite(quote.change)&&Number.isFinite(quote.changePercent);
-        const move=hasMove?\`\${quote.change>=0?'+':'−'}\${formatIndex(Math.abs(quote.change))} pts (\${quote.change>=0?'+':''}\${quote.changePercent.toFixed(2)}%) on \${quote.date}\`:'Import an official index-history CSV';
+        const move=hasMove?`${quote.change>=0?'+':'−'}${formatIndex(Math.abs(quote.change))} pts (${quote.change>=0?'+':''}${quote.changePercent.toFixed(2)}%) on ${quote.date}`:'Import an official index-history CSV';
         animateMarketNumber($(ids.value),available?quote.price:NaN,formatIndex,'index:'+ids.value);
         if($(ids.move)){$(ids.move).textContent=move;$(ids.move).className='index-move '+(hasMove?(quote.change>=0?'quote-up':'quote-down'):'muted');}
         if($(ids.time))$(ids.time).textContent=available?'Historical close · '+quote.exchange+' · '+quote.date:'No index CSV imported';
