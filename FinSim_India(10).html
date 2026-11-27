@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSim India | Virtual Stock Market</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--panel2:#17243a;--text:#eef4ff;--muted:#91a2bc;--line:#263650;--green:#19c784;--red:#ff647c;--blue:#6ea8fe}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+header{padding:22px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);background:#0e1829;position:sticky;top:0;z-index:2}
+.brand{font-size:24px;font-weight:800}.brand span{color:var(--green)}.sub{color:var(--muted);font-size:12px;margin-top:5px}
+.pill{border:1px solid var(--line);border-radius:30px;padding:8px 12px;color:var(--muted);font-size:12px}
+main{max-width:1200px;margin:28px auto;padding:0 20px}
+.notice{background:#192a40;border:1px solid #304866;padding:12px 15px;border-radius:10px;color:#b9cce6;font-size:13px;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.label{font-size:12px;color:var(--muted)}.value{font-size:25px;font-weight:750;margin-top:9px}.positive{color:var(--green)}.negative{color:var(--red)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
+button,select,input{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px}
+button{cursor:pointer}button.primary{background:#087e5a;border-color:#087e5a}button:hover{filter:brightness(1.15)}
+.layout{display:grid;grid-template-columns:1.45fr 1fr;gap:16px}
+h2{font-size:17px;margin:0 0 15px}.market-head,.stock{display:grid;grid-template-columns:1.5fr .8fr .7fr .85fr;gap:8px;align-items:center}
+.market-head{color:var(--muted);font-size:11px;padding:0 8px 10px;border-bottom:1px solid var(--line)}
+.stock{padding:13px 8px;border-bottom:1px solid var(--line);font-size:13px}.stock:last-child{border:0}
+.company{font-weight:700}.exchange{font-size:11px;color:var(--muted);margin-top:4px}
+.price{font-weight:700}.change{font-size:12px}.actions{display:flex;gap:5px}.actions button{padding:7px 9px;font-size:11px}
+.row{display:flex;justify-content:space-between;gap:10px;margin:12px 0;color:var(--muted);font-size:13px}
+input[type=number]{width:100%;margin:6px 0 12px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.formgrid label{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}
+.empty{color:var(--muted);text-align:center;padding:22px;font-size:13px}
+.bottom{margin-top:16px}.small{font-size:11px;color:var(--muted);line-height:1.5}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.market-head,.stock{grid-template-columns:1.3fr .8fr .7fr}.market-head span:last-child{display:none}.stock .actions{grid-column:1/-1}.value{font-size:21px}}
+@media(max-width:480px){header{padding:16px}.brand{font-size:20px}.stats{gap:8px}.card{padding:13px}.value{font-size:18px}.market-head,.stock{font-size:11px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">₹ <span>FinSim</span> India</div><div class="sub">LEARN THE MARKET. BUILD YOUR PORTFOLIO.</div></div><div class="pill" id="marketStatus">● SIMULATED MARKET LIVE</div></header>
+<main>
+<div class="notice"><b>Market mode:</b> Prices move automatically to demonstrate a live-market experience. These are simulated prices, not real-time NSE/BSE quotes. Use manual price updates for your own reference values.</div>
+<section class="stats">
+<div class="card"><div class="label">VIRTUAL WALLET</div><div class="value" id="cash">₹10,00,000.00</div></div>
+<div class="card"><div class="label">PORTFOLIO VALUE</div><div class="value" id="portfolioValue">₹0.00</div></div>
+<div class="card"><div class="label">TOTAL INVESTED</div><div class="value" id="invested">₹0.00</div></div>
+<div class="card"><div class="label">UNREALISED P/L</div><div class="value" id="pnl">₹0.00</div></div>
+</section>
+<div class="toolbar">
+<select id="exchangeFilter"><option value="ALL">All exchanges</option><option value="NSE">NSE</option><option value="BSE">BSE</option></select>
+<input id="search" placeholder="Search company..." />
+<button id="pauseBtn">Pause market</button><button id="exportBtn">Export backup</button><button id="importBtn">Import backup</button><input id="importFile" type="file" accept=".json" hidden>
+</div>
+<div class="layout">
+<section class="panel"><h2>Market watch <span class="small">· prices refresh every 1.5 seconds</span></h2>
+<div class="market-head"><span>COMPANY / EXCHANGE</span><span>PRICE</span><span>CHANGE</span><span>ACTION</span></div><div id="marketRows"></div>
+</section>
+<section class="panel"><h2>Buy / sell shares</h2>
+<div class="formgrid">
+<label>Company<select id="tradeCompany"></select></label>
+<label>Action<select id="tradeAction"><option value="BUY">Buy</option><option value="SELL">Sell</option></select></label>
+</div>
+<label class="label">Quantity</label><input id="quantity" type="number" min="1" step="1" value="1">
+<div class="row"><span>Current share price</span><b id="selectedPrice">₹0.00</b></div>
+<div class="row"><span>Estimated order value</span><b id="orderValue">₹0.00</b></div>
+<button class="primary" id="tradeBtn" style="width:100%">Review and confirm trade</button>
+<div class="small" style="margin-top:12px">Trades use your virtual wallet only. Sell orders are limited to shares in your portfolio.</div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<h2>Manual price update</h2>
+<label class="label">Selected company price (₹)</label><input id="manualPrice" type="number" min="0.01" step="0.01" placeholder="Enter price">
+<button id="updatePriceBtn">Update price</button>
+</section>
+</div>
+<section class="panel bottom"><h2>Your portfolio</h2><div id="portfolioTable"></div></section>
+<section class="panel bottom"><h2>Recent activity</h2><div id="activity"></div></section>
+<p class="small bottom">FinSim India is an educational simulator. No real money is used and no actual exchange orders are placed. Your data is saved in this browser. Export a backup regularly if you want to move your data to another device.</p>
+</main>
+<script>
+const initialCash=1000000;
+const stocks=[
+ {id:"RELIANCE",name:"Reliance Industries",exchange:"NSE",price:1450.00},
+ {id:"TCS",name:"Tata Consultancy Services",exchange:"NSE",price:3200.00},
+ {id:"HDFCBANK",name:"HDFC Bank",exchange:"NSE",price:1680.00},
+ {id:"INFY",name:"Infosys",exchange:"NSE",price:1540.00},
+ {id:"ICICIBANK",name:"ICICI Bank",exchange:"NSE",price:1250.00},
+ {id:"ITC",name:"ITC Limited",exchange:"BSE",price:430.00},
+ {id:"SBIN",name:"State Bank of India",exchange:"NSE",price:780.00},
+ {id:"TATAMOTORS",name:"Tata Motors",exchange:"BSE",price:690.00},
+ {id:"BHARTIARTL",name:"Bharti Airtel",exchange:"NSE",price:1780.00},
+ {id:"WIPRO",name:"Wipro",exchange:"BSE",price:290.00}
+];
+let cash=initialCash, holdings={}, activity=[], paused=false;
+let changes={}; stocks.forEach(s=>changes[s.id]=0);
+const fmt=n=>"₹"+Number(n).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const getStock=id=>stocks.find(s=>s.id===id);
+function save(){localStorage.setItem("finsim_india_v3",JSON.stringify({cash,holdings,activity,stocks:stocks.map(s=>({id:s.id,price:s.price}))}));}
+function load(){try{const d=JSON.parse(localStorage.getItem("finsim_india_v3"));if(!d)return;cash=Number(d.cash??initialCash);holdings=d.holdings||{};activity=d.activity||[];(d.stocks||[]).forEach(x=>{const s=getStock(x.id);if(s&&Number(x.price)>0)s.price=Number(x.price)});}catch(e){}}
+function totals(){let value=0,invested=0;Object.entries(holdings).forEach(([id,h])=>{const s=getStock(id);if(s&&h.qty>0){value+=h.qty*s.price;invested+=h.qty*h.avg;}});return {value,invested,pnl:value-invested};}
+function renderStats(){const t=totals();document.getElementById("cash").textContent=fmt(cash);document.getElementById("portfolioValue").textContent=fmt(t.value);document.getElementById("invested").textContent=fmt(t.invested);const p=document.getElementById("pnl");p.textContent=fmt(t.pnl);p.className="value "+(t.pnl>=0?"positive":"negative");}
+function renderMarket(){const q=document.getElementById("search").value.toLowerCase(),ex=document.getElementById("exchangeFilter").value;const list=stocks.filter(s=>(ex==="ALL"||s.exchange===ex)&&(s.name.toLowerCase().includes(q)||s.id.toLowerCase().includes(q)));document.getElementById("marketRows").innerHTML=list.map(s=>{const c=changes[s.id]||0;return `<div class="stock"><div><div class="company">${s.name}</div><div class="exchange">${s.id} · ${s.exchange}</div></div><div class="price">${fmt(s.price)}</div><div class="change ${c>=0?"positive":"negative"}">${c>=0?"+":""}${c.toFixed(2)}%</div><div class="actions"><button onclick="quickTrade('${s.id}','BUY')">Buy</button><button onclick="quickTrade('${s.id}','SELL')">Sell</button></div></div>`}).join("")||'<div class="empty">No companies found.</div>';}
+function renderPortfolio(){const entries=Object.entries(holdings).filter(([id,h])=>h.qty>0);if(!entries.length){document.getElementById("portfolioTable").innerHTML='<div class="empty">You have not bought any shares yet.</div>';return;}document.getElementById("portfolioTable").innerHTML=`<table><thead><tr><th>Company</th><th>Qty</th><th>Avg. cost</th><th>Market price</th><th>Value</th><th>P/L</th></tr></thead><tbody>${entries.map(([id,h])=>{const s=getStock(id),v=h.qty*s.price,p=v-h.qty*h.avg;return `<tr><td>${s.name}<div class="exchange">${s.exchange}</div></td><td>${h.qty}</td><td>${fmt(h.avg)}</td><td>${fmt(s.price)}</td><td>${fmt(v)}</td><td class="${p>=0?"positive":"negative"}">${fmt(p)}</td></tr>`}).join("")}</tbody></table>`;}
+function renderActivity(){document.getElementById("activity").innerHTML=activity.length?`<table><thead><tr><th>Time</th><th>Action</th><th>Company</th><th>Qty</th><th>Price</th></tr></thead><tbody>${activity.slice(0,15).map(a=>`<tr><td>${a.time}</td><td class="${a.side==="BUY"?"positive":"negative"}">${a.side}</td><td>${a.name}</td><td>${a.qty}</td><td>${fmt(a.price)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No activity yet.</div>';}
+function renderSelect(){document.getElementById("tradeCompany").innerHTML=stocks.map(s=>`<option value="${s.id}">${s.name} (${s.exchange})</option>`).join("");}
+function renderOrder(){const s=getStock(document.getElementById("tradeCompany").value);const q=Math.max(0,Number(document.getElementById("quantity").value)||0);document.getElementById("selectedPrice").textContent=fmt(s.price);document.getElementById("orderValue").textContent=fmt(s.price*q);document.getElementById("manualPrice").placeholder=s.price.toFixed(2);}
+function refresh(){renderStats();renderMarket();renderPortfolio();renderActivity();renderOrder();}
+function trade(id,side,qty){const s=getStock(id);qty=Math.floor(Number(qty));if(!s||qty<1){alert("Enter a valid share quantity.");return;}const total=s.price*qty;const h=holdings[id]||{qty:0,avg:0};
+ if(side==="BUY"){if(total>cash){alert("Not enough virtual wallet balance.");return;}h.avg=(h.avg*h.qty+total)/(h.qty+qty);h.qty+=qty;cash-=total;}
+ else{if(h.qty<qty){alert("You do not have enough shares to sell.");return;}h.qty-=qty;cash+=total;}
+ holdings[id]=h;activity.unshift({time:new Date().toLocaleString("en-IN"),side,name:s.name,qty,price:s.price});save();refresh();}
+function quickTrade(id,side){document.getElementById("tradeCompany").value=id;document.getElementById("tradeAction").value=side;renderOrder();document.getElementById("quantity").focus();}
+document.getElementById("tradeBtn").onclick=()=>{const id=document.getElementById("tradeCompany").value,side=document.getElementById("tradeAction").value,qty=Number(document.getElementById("quantity").value);const s=getStock(id);if(confirm(`${side} ${qty} share(s) of ${s.name} at ${fmt(s.price)} each?\nOrder value: ${fmt(s.price*qty)}`))trade(id,side,qty);};
+document.getElementById("tradeCompany").onchange=renderOrder;document.getElementById("quantity").oninput=renderOrder;
+document.getElementById("search").oninput=renderMarket;document.getElementById("exchangeFilter").onchange=renderMarket;
+document.getElementById("pauseBtn").onclick=()=>{paused=!paused;document.getElementById("pauseBtn").textContent=paused?"Resume market":"Pause market";document.getElementById("marketStatus").textContent=paused?"● MARKET PAUSED":"● SIMULATED MARKET LIVE";};
+document.getElementById("updatePriceBtn").onclick=()=>{const s=getStock(document.getElementById("tradeCompany").value),p=Number(document.getElementById("manualPrice").value);if(!(p>0)){alert("Enter a valid price.");return;}s.price=p;changes[s.id]=0;save();refresh();};
+document.getElementById("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify({cash,holdings,activity,stocks:stocks.map(s=>({id:s.id,price:s.price}))},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="FinSim_India_Backup.json";a.click();URL.revokeObjectURL(a.href);};
+document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
+document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(typeof d.cash!=="number"||!d.holdings)throw Error();cash=d.cash;holdings=d.holdings;activity=d.activity||[];(d.stocks||[]).forEach(x=>{const s=getStock(x.id);if(s&&x.price>0)s.price=x.price});save();refresh();alert("Backup imported.");}catch(err){alert("Invalid FinSim backup file.");}};r.readAsText(f);};
+load();renderSelect();refresh();
+setInterval(()=>{if(paused)return;stocks.forEach(s=>{const old=s.price;const pct=(Math.random()-.49)*0.22;s.price=Math.max(1,Number((s.price*(1+pct/100)).toFixed(2)));changes[s.id]=((s.price-old)/old)*100;});save();refresh();},1500);
+</script>
+</body>
+</html>
