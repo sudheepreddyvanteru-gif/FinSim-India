@@ -542,7 +542,7 @@
         const series=seriesCol>=0?String(r[seriesCol]||'').trim().toUpperCase():'';
         if(exchange==='NSE'&&series&&series!=='EQ')continue;
         const rawSymbol=String(r[symbolCol]||'').trim().toUpperCase(),rawName=nameCol>=0?String(r[nameCol]||'').trim():'';
-        const symbol=matchCompanySymbol(rawSymbol,rawName,exchange)||(exchange==='BSE'&&/^\\d{5,6}$/.test(rawSymbol)?rawSymbol:(exchange==='NSE'&&/^[A-Z0-9&._-]{1,30}$/.test(rawSymbol)?rawSymbol:'')),close=csvPrice(r[closeCol]);
+        const symbol=matchCompanySymbol(rawSymbol,rawName,exchange)||(exchange==='BSE'&&/^\d{5,6}$/.test(rawSymbol)?rawSymbol:(exchange==='NSE'&&/^[A-Z0-9&._-]{1,30}$/.test(rawSymbol)?rawSymbol:'')),close=csvPrice(r[closeCol]);
         if(!symbol||!close)continue;
         const prevClose=prevCol>=0?csvPrice(r[prevCol]):null,change=prevClose!==null?close-prevClose:null,changePercent=prevClose?change/prevClose*100:null;
         quotes.set(marketQuoteKey(exchange,symbol),{price:close,previousClose:prevClose,change,changePercent,exchange,date:marketDateISO(fileDate),time:marketDateISO(fileDate),source:exchange+' official historical equity bhavcopy',error:false});
