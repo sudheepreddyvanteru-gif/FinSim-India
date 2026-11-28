@@ -1,0 +1,4 @@
+<script>
+  window.FINSIM_API_BASE = "https://YOUR-SERVICE-DOMAIN";
+</script>
+<script src="./market-live.js" defer></script>
