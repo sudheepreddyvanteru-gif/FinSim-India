@@ -555,7 +555,7 @@
       if(!fileDate)throw new Error('No valid trading date found in this CSV.');
       const age=marketDateAge(fileDate);
       if(age<30)throw new Error('This file is '+age+' days old. Public investor-education use requires a minimum 30-day lag. Choose an older trading-date file.');
-      if(!matched)throw new Error('No Nifty 50 constituents matched. Select a cash-market equity (CM) bhavcopy, not a derivatives file.');
+      if(!matched)throw new Error('No cash-equity symbols matched. Select the correct NSE or BSE cash-market equity bhavcopy, not a derivatives file.');
       return {quotes,date:marketDateISO(fileDate),count:matched,exchange,type:'equity'};
     }
     function importIndexCsv(text,exchange){
@@ -902,7 +902,7 @@
     });
     $('marketSearch').addEventListener('input', renderCompanies);
     $('sectorFilter').addEventListener('change', renderCompanies);
-    $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;renderCompanies();renderTopMovers();renderWatchlist();});
+    $('marketDataExchange').addEventListener('change',event=>{selectedMarketExchange=event.target.value;preferences.defaultExchange=selectedMarketExchange;savePreferences();if($('prefExchange'))$('prefExchange').value=selectedMarketExchange;renderCompanies();renderTopMovers();renderWatchlist();});
     $('loadDelayedQuotesBtn').addEventListener('click',()=>loadDelayedMarketQuotes());
     $('refreshQuotesBtn').addEventListener('click',()=>$('marketCsvFile').click());
     $('marketCsvFile').addEventListener('change',event=>handleMarketCsv(event.target.files[0]));
