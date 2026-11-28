@@ -21,7 +21,7 @@ The workflow remains disabled until the repository owner has confirmed that the 
 4. Add the repository variable `FINSIM_MARKET_DATA_AUTHORIZED` with value `true` only after the rights are confirmed.
 5. Run **Actions → Update 31+ day delayed market data** once to test the pipeline.
 
-The workflow publishes `data/market-quotes.json` to GitHub Pages after a complete snapshot passes validation. The site refreshes that archive on a configurable browser interval while open. GitHub Pages does not run a continuous backend process.
+The workflow publishes `data/market-quotes.json` to GitHub Pages after the NSE and BSE cash-equity row-count thresholds and index checks pass. The site refreshes that archive on a configurable browser interval while open. GitHub Pages does not run a continuous backend process.
 
 ## Dashboard settings
 
