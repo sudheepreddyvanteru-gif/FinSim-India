@@ -21,8 +21,8 @@ No API key is required by this updater. The workflow is deliberately gated and r
 
 - Runs Monday to Friday at 14:30 UTC (about 8:00 PM India time).
 - Uses a date at least 31 calendar days old and steps back over weekends, holidays, or missing reports.
-- Downloads NSE/BSE cash-market bhavcopies and historical NIFTY 50/SENSEX index values.
+- Downloads NSE/BSE cash-market equity bhavcopies and historical NIFTY 50/SENSEX benchmark index values. The builder validates a minimum number of matched cash-equity rows before publishing and keeps exchange-specific NSE symbols and BSE scrip codes.
 - Generates data/market-quotes.json; the browser loads it after sign-in and checks for updates when the tab becomes active and every six hours while open.
-- These are historical closing prices, not live or intraday quotes.
+- These are historical cash-equity closing prices, not live or intraday quotes. This workflow does not claim to cover derivatives, bonds, ETFs, commodities, or every NSE/BSE index. Additional instrument classes require separately licensed data sources and parsers.
 
 If data-sharing rights are not confirmed, leave the variable unset. FinSim continues to support its existing manual CSV import, which stays in the user's browser.
