@@ -23,7 +23,7 @@
     @media(max-width:760px){.auth-screen{grid-template-columns:1fr}.auth-showcase{display:none}.auth-side{min-height:100vh;padding:20px}.auth-card{padding:23px}.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:10;left:0;top:0;bottom:0;height:100vh;width:250px;transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 40px #0007}.sidebar.open{transform:translateX(0)}.main{padding:19px 14px 28px}.mobile-menu{display:inline-block}.topbar h1{font-size:21px}.user-pill{max-width:165px}.user-email{max-width:95px}.company-list{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.page-intro{align-items:flex-start;flex-direction:column}.market-index-grid{grid-template-columns:1fr}.home-index-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:390px){.grid-four{gap:8px}.stat{padding:12px}.stat-value{font-size:18px}.user-pill{display:none}}
 
-    .feed-summary{display:flex;align-items:center;gap:9px;font-size:11px;color:#d9e9e7}.feed-dot{width:9px;height:9px;border-radius:50%;background:#d9a441;box-shadow:0 0 0 4px #d9a44120}.market-feed-panel{background:linear-gradient(120deg,#142329,#111b20)}.preference-control{min-width:145px;max-width:190px}.setting-row input[type=checkbox]{flex:0 0 auto}html[data-density=compact] .company-card{min-height:88px;padding:9px}html[data-density=compact] th,html[data-density=compact] td{padding:9px 11px}html[data-accent=blue]{--purple:#58a9dc;--purple2:#277aa9}html[data-accent=green]{--purple:#48c58d;--purple2:#23865d}html[data-reduce-motion=true] *,html[data-reduce-motion=true] *:before,html[data-reduce-motion=true] *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    .index-list{min-width:0}.feed-summary{display:flex;align-items:center;gap:9px;font-size:11px;color:#d9e9e7}.feed-dot{width:9px;height:9px;border-radius:50%;background:#d9a441;box-shadow:0 0 0 4px #d9a44120}.market-feed-panel{background:linear-gradient(120deg,#142329,#111b20)}.preference-control{min-width:145px;max-width:190px}.setting-row input[type=checkbox]{flex:0 0 auto}html[data-density=compact] .company-card{min-height:88px;padding:9px}html[data-density=compact] th,html[data-density=compact] td{padding:9px 11px}html[data-accent=blue]{--purple:#58a9dc;--purple2:#277aa9}html[data-accent=green]{--purple:#48c58d;--purple2:#23865d}html[data-reduce-motion=true] *,html[data-reduce-motion=true] *:before,html[data-reduce-motion=true] *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   </style>
 </head>
 <body>
@@ -88,6 +88,10 @@
       <section class="page" id="page-markets">
         <div class="page-intro"><div><h2>Indian markets · NSE &amp; BSE cash equities</h2><p>Historical NSE/BSE cash-equity snapshot mode. Quotes are shown only after the authorised data workflow publishes a verifiable snapshot with a 31+ day delay. No simulated prices are used.</p></div><span class="tag">NSE + BSE INDICES</span></div>
         <div class="market-index-grid"><div class="market-index"><div><div class="index-label">NIFTY 50 · NSE index</div><strong id="niftyValue">—</strong><div id="niftyMove" class="index-move muted">Import an index-history CSV</div></div><div class="index-meta"><div id="niftyTimestamp">No index CSV imported</div><div>INR · Index points</div></div></div><div class="market-index"><div><div class="index-label">SENSEX · BSE index</div><strong id="sensexValue">—</strong><div id="sensexMove" class="index-move muted">Import an index-history CSV</div></div><div class="index-meta"><div id="sensexTimestamp">No index CSV imported</div><div>INR · Index points</div></div></div></div>
+        <div class="panel" style="margin:0 0 14px">
+          <div class="panel-head"><h3>Additional NSE indices</h3><small>Official historical index report</small></div>
+          <div id="additionalIndexList" class="index-list"><div class="holding-empty">Additional index values appear when an eligible NSE index snapshot is loaded.</div></div>
+        </div>
         <div class="panel market-feed-panel" style="margin:0 0 14px">
           <div class="panel-head"><h3>Verified market data</h3><small id="marketSnapshotMeta">Waiting for an eligible data snapshot</small></div>
           <div class="feed-summary"><span class="feed-dot"></span><strong id="marketSnapshotState">No authorised public quote snapshot loaded</strong></div>
@@ -602,8 +606,17 @@
         if($(ids.homeTime))$(ids.homeTime).textContent=available?'Historical close · '+quote.date:'No official index data loaded';
       });
     }
+    function renderAdditionalIndices(){
+      const target=$('additionalIndexList');if(!target)return;
+      const rows=[...quoteCache.values()].filter(q=>q&&q.type==='index'&&q.exchange==='NSE'&&q.symbol!=='^NSEI'&&Number.isFinite(q.price))
+        .sort((a,b)=>String(a.name||a.symbol).localeCompare(String(b.name||b.symbol)));
+      if(!rows.length){target.innerHTML='<div class="holding-empty">No additional NSE index records are available in the current snapshot.</div>';return;}
+      target.innerHTML='<div class="table-wrap"><table><thead><tr><th>Index</th><th>Close</th><th>Change</th><th>Change %</th><th>Data date</th></tr></thead><tbody>'+
+        rows.map(q=>{const up=Number(q.change)>=0,has=Number.isFinite(Number(q.changePercent));return '<tr><td><strong>'+escapeHtml(q.name||q.symbol)+'</strong><br><small class="muted">'+escapeHtml(q.symbol)+'</small></td><td>'+formatIndex(q.price)+'</td><td class="'+(Number.isFinite(Number(q.change))?(up?'quote-up':'quote-down'):'muted')+'">'+(Number.isFinite(Number(q.change))?(up?'+':'−')+formatIndex(Math.abs(Number(q.change))):'—')+'</td><td class="'+(has?(up?'quote-up':'quote-down'):'muted')+'">'+(has?(up?'+':'')+Number(q.changePercent).toFixed(2)+'%':'—')+'</td><td class="muted">'+escapeHtml(q.date||'—')+'</td></tr>';}).join('')+
+        '</tbody></table></div>';
+    }
     function refreshQuotes({silent=false}={}){
-      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();updateWalletDisplays();updateMarketIndexDisplays();
+      renderCompanies();renderTopMovers();renderWatchlist();renderPortfolio();updateWalletDisplays();updateMarketIndexDisplays();renderAdditionalIndices();
       const loaded=[...quoteCache.values()].filter(q=>q&&!q.error&&Number.isFinite(q.price)).length;
       const status=$('quoteUpdatedAt');
       if(status)status.textContent=loaded?'Loaded '+loaded+' official historical quote records. See each card for its exchange and data date.':'No official historical prices imported yet.';
@@ -635,7 +648,7 @@
             previousClose:item.previousClose===null?null:Number(item.previousClose),
             change:item.change===null?null:Number(item.change),
             changePercent:item.changePercent===null?null:Number(item.changePercent),
-            exchange:String(item.exchange||''),date,time:date,
+            exchange:String(item.exchange||''),type:String(item.type||''),name:String(item.name||item.symbol||''),symbol:String(item.symbol||''),date,time:date,
             source:String(item.source||'Official historical exchange report'),error:false
           });
           loaded++;
@@ -647,7 +660,7 @@
         const equityRows=feed.quotes.filter(q=>q.type==='equity'),nseCount=equityRows.filter(q=>q.exchange==='NSE').length,bseCount=equityRows.filter(q=>q.exchange==='BSE').length;
         $('marketSnapshotState').textContent='Verified historical snapshot available · '+feed.dataDate;
         $('marketSnapshotMeta').textContent=age+' days delayed · '+new Date(feed.generatedAt||Date.now()).toLocaleString();
-        $('marketCoverageMeta').textContent='NSE cash equities: '+nseCount+' · BSE cash equities: '+bseCount+' · Index records: '+feed.quotes.filter(q=>q.type==='index').length;
+        $('marketCoverageMeta').textContent='NSE cash equities: '+nseCount+' · BSE cash equities: '+bseCount+' · NSE indices: '+feed.quotes.filter(q=>q.type==='index'&&q.exchange==='NSE').length+' · BSE indices: '+feed.quotes.filter(q=>q.type==='index'&&q.exchange==='BSE').length;
         const settingsFeed=$('settingsFeedStatus');if(settingsFeed)settingsFeed.textContent='Snapshot '+feed.dataDate+' · '+age+' days delayed · '+loaded+' quote records.';
         const label='Auto-loaded '+loaded+' official delayed quotes for '+feed.dataDate+' ('+age+' days old). Updated '+new Date(feed.generatedAt||Date.now()).toLocaleString()+'.';
         if(status){status.textContent=label;status.style.color='#5ce0ae';}
