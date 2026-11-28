@@ -1,0 +1,17 @@
+{
+  "provider": "your-authorised-provider",
+  "quotes": [
+    {
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "name": "Reliance Industries",
+      "instrumentType": "EQUITY",
+      "lastPrice": 1234.5,
+      "change": 12.3,
+      "changePercent": 1.01,
+      "timestamp": "2026-11-28T09:15:00+05:30",
+      "dataMode": "REALTIME",
+      "source": "licensed-provider"
+    }
+  ]
+}
