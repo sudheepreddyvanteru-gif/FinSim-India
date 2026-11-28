@@ -204,12 +204,14 @@ def build(d):
     nifty="https://nsearchives.nseindia.com/content/indices/ind_close_all_"+d.strftime("%d%m%Y")+".csv"
     sensex="https://api.bseindia.com/BseIndiaAPI/api/ProduceCSVForDate/w?"+urlencode({"strIndex":"SENSEX","dtFromDate":d.strftime("%d/%m/%Y"),"dtToDate":d.strftime("%d/%m/%Y"),"period":"D"})
     q=equity(fetch(nse),"NSE",d)+equity(fetch(bse),"BSE",d)
-    nse_index_quotes=all_nse_indices(fetch(nifty),d)\n    q += nse_index_quotes\n    q += [index(fetch(sensex),"BSE","SENSEX",d)]
+    nse_index_quotes=all_nse_indices(fetch(nifty),d)
+    q += nse_index_quotes
+    q += [index(fetch(sensex),"BSE","SENSEX",d)]
     lag=(datetime.now(INDIA).date()-d).days
     if lag<MIN_LAG: raise RuntimeError("Refusing to publish a date inside the 31-day delay")
     return {"schemaVersion":1,"status":"ok","generatedAt":datetime.now(timezone.utc).isoformat(),
       "dataDate":d.isoformat(),"lagDays":lag,"quoteCount":len(q),
-      "sources":{"NSE equities":nse,"BSE equities":bse,"NIFTY 50":nifty,"SENSEX":sensex},
+      "sources":{"NSE equities":nse,"BSE equities":bse,"NSE indices":nifty,"SENSEX":sensex},
       "quotes":sorted(q,key=lambda x:x["key"])}
 def main():
     if os.environ.get("FINSIM_MARKET_DATA_AUTHORIZED","").lower()!="true":
