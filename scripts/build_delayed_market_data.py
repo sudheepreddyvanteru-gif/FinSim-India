@@ -76,7 +76,7 @@ def rows(payload):
     return list(csv.DictReader(io.StringIO("\n".join(lines[header:]))))
 def symbol_for(r,exchange):
     raw=get(r,("TckrSymb","SYMBOL","Security Id","Scrip Code","SCRIP_CD","SC_CODE")).strip().upper()
-    name=norm(get(r,("FinInstrmNm","SC_NAME","SCRIP_NAME","Security Name","Company Name","NAME")))
+    name=norm(re.sub(r"\\b(limited|ltd|company|co|corporation|corp|india)\\b","",get(r,("FinInstrmNm","SC_NAME","SCRIP_NAME","Security Name","Company Name","NAME")).lower()))
     # Keep the existing human-readable NIFTY 50 symbols where a BSE issuer can be
     # matched confidently. For the rest of BSE, use the exchange's unique scrip code.
     if exchange=="BSE":
