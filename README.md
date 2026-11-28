@@ -6,7 +6,7 @@ FinSim India is an educational NSE/BSE market dashboard and personal portfolio t
 
 - The public website displays only quote records supplied by an authorised snapshot or imported from eligible historical CSV files.
 - The automatic public snapshot workflow is designed for historical exchange data at least **31 calendar days old**. It is not a real-time or intraday feed.
-- The snapshot builder collects NSE and BSE cash-equity records from their exchange bhavcopies and adds NIFTY 50 and SENSEX benchmark records.
+- The snapshot builder collects NSE and BSE cash-equity records from their exchange bhavcopies and adds all available NSE historical index-report rows (including NIFTY 50) and the BSE SENSEX benchmark record.
 - NSE symbols and BSE scrip codes are kept exchange-specific. The browser expands its searchable company directory from the verified snapshot.
 - Derivatives, bonds, ETFs, commodities and every exchange index are not claimed to be included by this cash-equity workflow.
 - No prices are fabricated when a data source is missing.
