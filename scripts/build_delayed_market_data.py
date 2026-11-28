@@ -88,37 +88,24 @@ def symbol_for(r,exchange):
     # NSE symbols are the exchange's searchable cash-equity identifiers.
     return raw if re.fullmatch(r"[A-Z0-9&._-]{1,30}",raw) else ""
 
+SECTOR_BY_SYMBOL={
+ "ADANIENT":"Other","ADANIPORTS":"Other","APOLLOHOSP":"Healthcare","ASIANPAINT":"Consumer",
+ "AXISBANK":"Financial Services","BAJAJ-AUTO":"Automobile","BAJAJFINSV":"Financial Services",
+ "BAJFINANCE":"Financial Services","BEL":"Other","BHARTIARTL":"Other","BSE":"Other","CIPLA":"Healthcare",
+ "COALINDIA":"Power & Energy","DRREDDY":"Healthcare","EICHERMOT":"Automobile","ETERNAL":"Consumer",
+ "GRASIM":"Other","HCLTECH":"Information Technology","HDFCBANK":"Financial Services",
+ "HDFCLIFE":"Financial Services","HINDALCO":"Metals & Mining","HINDUNILVR":"Consumer",
+ "ICICIBANK":"Financial Services","INDIGO":"Other","INFY":"Information Technology","ITC":"Consumer",
+ "JIOFIN":"Financial Services","JSWSTEEL":"Metals & Mining","KOTAKBANK":"Financial Services",
+ "LT":"Other","M&M":"Automobile","MARUTI":"Automobile","MAXHEALTH":"Healthcare","NESTLEIND":"Consumer",
+ "NTPC":"Power & Energy","ONGC":"Power & Energy","POWERGRID":"Power & Energy","RELIANCE":"Power & Energy",
+ "SBILIFE":"Financial Services","SBIN":"Financial Services","SHRIRAMFIN":"Financial Services",
+ "SUNPHARMA":"Healthcare","TATACONSUM":"Consumer","TATASTEEL":"Metals & Mining",
+ "TCS":"Information Technology","TECHM":"Information Technology","TITAN":"Consumer",
+ "TMPV":"Automobile","TRENT":"Consumer","ULTRACEMCO":"Other"
+}
 def sector_for(symbol,name):
-    for known_symbol,known_name in COMPANIES:
-        if symbol==known_symbol or norm(name)==norm(known_name):
-            for s,n,sector in [(x[0],x[1],x[2]) for x in [
-                ("ADANIENT","Adani Enterprises Ltd.","Other"),("ADANIPORTS","Adani Ports and Special Economic Zone Ltd.","Other"),
-                ("APOLLOHOSP","Apollo Hospitals Enterprise Ltd.","Healthcare"),("ASIANPAINT","Asian Paints Ltd.","Consumer"),
-                ("AXISBANK","Axis Bank Ltd.","Financial Services"),("BAJAJ-AUTO","Bajaj Auto Ltd.","Automobile"),
-                ("BAJAJFINSV","Bajaj Finserv Ltd.","Financial Services"),("BAJFINANCE","Bajaj Finance Ltd.","Financial Services"),
-                ("BEL","Bharat Electronics Ltd.","Other"),("BHARTIARTL","Bharti Airtel Ltd.","Other"),("BSE","BSE Ltd.","Other"),
-                ("CIPLA","Cipla Ltd.","Healthcare"),("COALINDIA","Coal India Ltd.","Power & Energy"),
-                ("DRREDDY","Dr. Reddy's Laboratories Ltd.","Healthcare"),("EICHERMOT","Eicher Motors Ltd.","Automobile"),
-                ("ETERNAL","Eternal Ltd.","Consumer"),("GRASIM","Grasim Industries Ltd.","Other"),
-                ("HCLTECH","HCL Technologies Ltd.","Information Technology"),("HDFCBANK","HDFC Bank Ltd.","Financial Services"),
-                ("HDFCLIFE","HDFC Life Insurance Company Ltd.","Financial Services"),("HINDALCO","Hindalco Industries Ltd.","Metals & Mining"),
-                ("HINDUNILVR","Hindustan Unilever Ltd.","Consumer"),("ICICIBANK","ICICI Bank Ltd.","Financial Services"),
-                ("INDIGO","InterGlobe Aviation Ltd.","Other"),("INFY","Infosys Ltd.","Information Technology"),
-                ("ITC","ITC Ltd.","Consumer"),("JIOFIN","Jio Financial Services Ltd.","Financial Services"),
-                ("JSWSTEEL","JSW Steel Ltd.","Metals & Mining"),("KOTAKBANK","Kotak Mahindra Bank Ltd.","Financial Services"),
-                ("LT","Larsen & Toubro Ltd.","Other"),("M&M","Mahindra & Mahindra Ltd.","Automobile"),
-                ("MARUTI","Maruti Suzuki India Ltd.","Automobile"),("MAXHEALTH","Max Healthcare Institute Ltd.","Healthcare"),
-                ("NESTLEIND","Nestle India Ltd.","Consumer"),("NTPC","NTPC Ltd.","Power & Energy"),
-                ("ONGC","Oil & Natural Gas Corporation Ltd.","Power & Energy"),("POWERGRID","Power Grid Corporation of India Ltd.","Power & Energy"),
-                ("RELIANCE","Reliance Industries Ltd.","Power & Energy"),("SBILIFE","SBI Life Insurance Company Ltd.","Financial Services"),
-                ("SBIN","State Bank of India","Financial Services"),("SHRIRAMFIN","Shriram Finance Ltd.","Financial Services"),
-                ("SUNPHARMA","Sun Pharmaceutical Industries Ltd.","Healthcare"),("TATACONSUM","Tata Consumer Products Ltd.","Consumer"),
-                ("TATASTEEL","Tata Steel Ltd.","Metals & Mining"),("TCS","Tata Consultancy Services Ltd.","Information Technology"),
-                ("TECHM","Tech Mahindra Ltd.","Information Technology"),("TITAN","Titan Company Ltd.","Consumer"),
-                ("TMPV","Tata Motors Passenger Vehicles Ltd.","Automobile"),("TRENT","Trent Ltd.","Consumer"),
-                ("ULTRACEMCO","UltraTech Cement Ltd.","Other")]]:
-                if s==symbol: return sector
-    return "Other"
+    return SECTOR_BY_SYMBOL.get(symbol,"Other")
 
 def equity(payload,exchange,d):
     found={}
