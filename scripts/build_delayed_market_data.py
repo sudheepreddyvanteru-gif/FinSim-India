@@ -74,29 +74,78 @@ def rows(payload):
             header=i; break
     if header is None: raise RuntimeError("CSV headers not recognised")
     return list(csv.DictReader(io.StringIO("\n".join(lines[header:]))))
-def symbol_for(r):
-    s=get(r,("TckrSymb","SYMBOL","Security Id","Scrip Code","SCRIP_CD","SC_CODE")).upper()
-    if s in SYMBOLS: return s
+def symbol_for(r,exchange):
+    raw=get(r,("TckrSymb","SYMBOL","Security Id","Scrip Code","SCRIP_CD","SC_CODE")).strip().upper()
     name=norm(get(r,("FinInstrmNm","SC_NAME","SCRIP_NAME","Security Name","Company Name","NAME")))
-    if name in NAME_MAP: return NAME_MAP[name]
-    matches=[(len(k),v) for k,v in NAME_MAP.items() if len(name)>=8 and (k.startswith(name) or name.startswith(k))]
-    return max(matches)[1] if matches else ""
+    # Keep the existing human-readable NIFTY 50 symbols where a BSE issuer can be
+    # matched confidently. For the rest of BSE, use the exchange's unique scrip code.
+    if exchange=="BSE":
+        if name in NAME_MAP: return NAME_MAP[name]
+        matches=[(len(k),v) for k,v in NAME_MAP.items() if len(name)>=8 and (k.startswith(name) or name.startswith(k))]
+        if matches: return max(matches)[1]
+        code=get(r,("SCRIP_CD","SC_CODE","Security Code","Scrip Code")).strip()
+        return code or raw
+    # NSE symbols are the exchange's searchable cash-equity identifiers.
+    return raw if re.fullmatch(r"[A-Z0-9&._-]{1,30}",raw) else ""
+
+def sector_for(symbol,name):
+    for known_symbol,known_name in COMPANIES:
+        if symbol==known_symbol or norm(name)==norm(known_name):
+            for s,n,sector in [(x[0],x[1],x[2]) for x in [
+                ("ADANIENT","Adani Enterprises Ltd.","Other"),("ADANIPORTS","Adani Ports and Special Economic Zone Ltd.","Other"),
+                ("APOLLOHOSP","Apollo Hospitals Enterprise Ltd.","Healthcare"),("ASIANPAINT","Asian Paints Ltd.","Consumer"),
+                ("AXISBANK","Axis Bank Ltd.","Financial Services"),("BAJAJ-AUTO","Bajaj Auto Ltd.","Automobile"),
+                ("BAJAJFINSV","Bajaj Finserv Ltd.","Financial Services"),("BAJFINANCE","Bajaj Finance Ltd.","Financial Services"),
+                ("BEL","Bharat Electronics Ltd.","Other"),("BHARTIARTL","Bharti Airtel Ltd.","Other"),("BSE","BSE Ltd.","Other"),
+                ("CIPLA","Cipla Ltd.","Healthcare"),("COALINDIA","Coal India Ltd.","Power & Energy"),
+                ("DRREDDY","Dr. Reddy's Laboratories Ltd.","Healthcare"),("EICHERMOT","Eicher Motors Ltd.","Automobile"),
+                ("ETERNAL","Eternal Ltd.","Consumer"),("GRASIM","Grasim Industries Ltd.","Other"),
+                ("HCLTECH","HCL Technologies Ltd.","Information Technology"),("HDFCBANK","HDFC Bank Ltd.","Financial Services"),
+                ("HDFCLIFE","HDFC Life Insurance Company Ltd.","Financial Services"),("HINDALCO","Hindalco Industries Ltd.","Metals & Mining"),
+                ("HINDUNILVR","Hindustan Unilever Ltd.","Consumer"),("ICICIBANK","ICICI Bank Ltd.","Financial Services"),
+                ("INDIGO","InterGlobe Aviation Ltd.","Other"),("INFY","Infosys Ltd.","Information Technology"),
+                ("ITC","ITC Ltd.","Consumer"),("JIOFIN","Jio Financial Services Ltd.","Financial Services"),
+                ("JSWSTEEL","JSW Steel Ltd.","Metals & Mining"),("KOTAKBANK","Kotak Mahindra Bank Ltd.","Financial Services"),
+                ("LT","Larsen & Toubro Ltd.","Other"),("M&M","Mahindra & Mahindra Ltd.","Automobile"),
+                ("MARUTI","Maruti Suzuki India Ltd.","Automobile"),("MAXHEALTH","Max Healthcare Institute Ltd.","Healthcare"),
+                ("NESTLEIND","Nestle India Ltd.","Consumer"),("NTPC","NTPC Ltd.","Power & Energy"),
+                ("ONGC","Oil & Natural Gas Corporation Ltd.","Power & Energy"),("POWERGRID","Power Grid Corporation of India Ltd.","Power & Energy"),
+                ("RELIANCE","Reliance Industries Ltd.","Power & Energy"),("SBILIFE","SBI Life Insurance Company Ltd.","Financial Services"),
+                ("SBIN","State Bank of India","Financial Services"),("SHRIRAMFIN","Shriram Finance Ltd.","Financial Services"),
+                ("SUNPHARMA","Sun Pharmaceutical Industries Ltd.","Healthcare"),("TATACONSUM","Tata Consumer Products Ltd.","Consumer"),
+                ("TATASTEEL","Tata Steel Ltd.","Metals & Mining"),("TCS","Tata Consultancy Services Ltd.","Information Technology"),
+                ("TECHM","Tech Mahindra Ltd.","Information Technology"),("TITAN","Titan Company Ltd.","Consumer"),
+                ("TMPV","Tata Motors Passenger Vehicles Ltd.","Automobile"),("TRENT","Trent Ltd.","Consumer"),
+                ("ULTRACEMCO","UltraTech Cement Ltd.","Other")]]:
+                if s==symbol: return sector
+    return "Other"
+
 def equity(payload,exchange,d):
     found={}
+    # Cash-market equity series. Debt, currency, commodity and derivatives instruments
+    # are not included in this equity directory.
+    equity_series={"EQ","BE","BZ","SM","ST","SZ","E1"}
     for r in rows(payload):
         series=get(r,("SctySrs","SERIES","SC_GROUP","GROUP")).upper()
-        if exchange=="NSE" and series and series!="EQ": continue
-        s=symbol_for(r); close=num(get(r,("ClsPric","CLOSE","CLOSE_PRICE","Close Price","Closing Price")))
+        if exchange=="NSE" and series and series not in equity_series: continue
+        s=symbol_for(r,exchange)
+        name=get(r,("FinInstrmNm","SC_NAME","SCRIP_NAME","Security Name","Company Name","NAME")) or s
+        close=num(get(r,("ClsPric","CLOSE","CLOSE_PRICE","Close Price","Closing Price")))
         prev=num(get(r,("PrvsClsgPric","PREVCLOSE","PREV_CLOSE","Previous Close","Prev Close")))
         if not s or close is None or close<=0: continue
         change=close-prev if prev not in (None,0) else None
         key=exchange+":"+s
-        found[key]={"key":key,"exchange":exchange,"symbol":s,"type":"equity","price":round(close,4),
+        item={"key":key,"exchange":exchange,"symbol":s,"name":name,"sector":sector_for(s,name),
+          "type":"equity","series":series,"price":round(close,4),
           "previousClose":round(prev,4) if prev is not None else None,
           "change":round(change,4) if change is not None else None,
           "changePercent":round(change/prev*100,6) if change is not None else None,
-          "date":d.isoformat(),"source":"Official "+exchange+" historical equity bhavcopy"}
-    if len(found)<20: raise RuntimeError(exchange+" bhavcopy matched only "+str(len(found))+" Nifty 50 shares")
+          "date":d.isoformat(),"source":"Official "+exchange+" historical cash-equity bhavcopy"}
+        old=found.get(key)
+        # Prefer the primary EQ series when a symbol appears more than once.
+        if old is None or (series=="EQ" and old.get("series")!="EQ"): found[key]=item
+    if len(found)<100:
+        raise RuntimeError(exchange+" bhavcopy matched only "+str(len(found))+" cash-equity securities; refusing to publish a partial market snapshot")
     return list(found.values())
 def flatten(v):
     if isinstance(v,list): return [r for x in v for r in flatten(x)]
