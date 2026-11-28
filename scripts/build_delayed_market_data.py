@@ -167,6 +167,36 @@ def index(payload,exchange,name,d):
       "change":round(change,4) if change is not None else None,
       "changePercent":round(pct,6) if pct is not None else None,
       "date":d.isoformat(),"source":"Official "+exchange+" historical index report"}
+def all_nse_indices(payload,d):
+    result=[]
+    seen=set()
+    for r in rows(payload):
+        name=get(r,("Index Name","IndexName","Index","Index_Name"))
+        if not name: continue
+        trade_date=parsedate(get(r,("Index Date","Date","HistoricalDate","Trade Date")))
+        if trade_date and trade_date!=d: continue
+        close=num(get(r,("Closing Index Value","Close","Closing Value","ClosingIndexValue")))
+        if close is None or close<=0: continue
+        previous=num(get(r,("Previous Closing Index Value","Previous Close","Prev Close","Previous Closing Index")))
+        change=num(get(r,("Points Change","Change","PointsChange")))
+        pct=num(get(r,("Change (%)","Change(%)","% Change","Percentage Change","Percent Change","ChangePercent")))
+        if previous is None and change is not None: previous=close-change
+        if change is None and previous is not None: change=close-previous
+        if pct is None and previous and change is not None: pct=change/previous*100
+        slug=re.sub(r"[^A-Z0-9]+","-",name.upper()).strip("-")
+        symbol="^NSEI" if norm(name) in ("nifty50","nifty50index") else "NSE:"+slug
+        key="INDEX:"+symbol
+        if key in seen: continue
+        seen.add(key)
+        result.append({"key":key,"exchange":"NSE","symbol":symbol,"name":name,"type":"index",
+          "price":round(close,4),"previousClose":round(previous,4) if previous is not None else None,
+          "change":round(change,4) if change is not None else None,
+          "changePercent":round(pct,6) if pct is not None else None,
+          "date":d.isoformat(),"source":"Official NSE historical index report"})
+    if not any(q["symbol"]=="^NSEI" for q in result):
+        raise RuntimeError("NIFTY 50 index row missing from NSE all-index report")
+    return result
+
 def build(d):
     ymd=d.strftime("%Y%m%d")
     nse="https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_"+ymd+"_F_0000.csv.zip"
@@ -174,7 +204,7 @@ def build(d):
     nifty="https://nsearchives.nseindia.com/content/indices/ind_close_all_"+d.strftime("%d%m%Y")+".csv"
     sensex="https://api.bseindia.com/BseIndiaAPI/api/ProduceCSVForDate/w?"+urlencode({"strIndex":"SENSEX","dtFromDate":d.strftime("%d/%m/%Y"),"dtToDate":d.strftime("%d/%m/%Y"),"period":"D"})
     q=equity(fetch(nse),"NSE",d)+equity(fetch(bse),"BSE",d)
-    q += [index(fetch(nifty),"NSE","Nifty 50",d),index(fetch(sensex),"BSE","SENSEX",d)]
+    nse_index_quotes=all_nse_indices(fetch(nifty),d)\n    q += nse_index_quotes\n    q += [index(fetch(sensex),"BSE","SENSEX",d)]
     lag=(datetime.now(INDIA).date()-d).days
     if lag<MIN_LAG: raise RuntimeError("Refusing to publish a date inside the 31-day delay")
     return {"schemaVersion":1,"status":"ok","generatedAt":datetime.now(timezone.utc).isoformat(),
