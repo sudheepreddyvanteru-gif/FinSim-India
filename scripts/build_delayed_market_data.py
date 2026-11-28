@@ -131,8 +131,8 @@ def equity(payload,exchange,d):
         old=found.get(key)
         # Prefer the primary EQ series when a symbol appears more than once.
         if old is None or (series=="EQ" and old.get("series")!="EQ"): found[key]=item
-    if len(found)<100:
-        raise RuntimeError(exchange+" bhavcopy matched only "+str(len(found))+" cash-equity securities; refusing to publish a partial market snapshot")
+    if len(found)<500:
+        raise RuntimeError(exchange+" bhavcopy matched only "+str(len(found))+" cash-equity securities; at least 500 are required before publishing a broad-market snapshot")
     return list(found.values())
 def flatten(v):
     if isinstance(v,list): return [r for x in v for r in flatten(x)]
