@@ -283,6 +283,7 @@
     let toastTimer;
     const quoteCache = new Map();
     const marketDisplayMode = 'official';
+    let selectedMarketExchange = 'NSE';
     const preferencesKey='finsim_india_preferences_v1';
     let preferences={density:'comfortable',accent:'teal',refreshHours:6,reducedMotion:false,defaultExchange:'NSE'};
     try{preferences={...preferences,...JSON.parse(localStorage.getItem(preferencesKey)||'{}')};}catch(_){}
@@ -291,7 +292,6 @@
     applyPreferences();
     let quoteFetchRunning = false;
     let quoteLastUpdated = null;
-    let selectedMarketExchange = 'NSE';
     let moversDirection = 'gainers';
     // Holds a GitHub credential temporarily while the user signs in with the existing Google account.
     let pendingGithubCredential = null;
